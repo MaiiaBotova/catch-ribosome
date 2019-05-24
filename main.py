@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox as mb
 import random
+from math import *
 
 # Globals
 WIDTH = 1000
@@ -8,7 +9,7 @@ HEIGHT = 600
 SEG_SIZE = 20
 IN_GAME = True
 
-
+##############################################################
 # Helper functions
 
 def create_block():
@@ -21,14 +22,15 @@ def create_block():
                           fill="red", outline='black')
 
 def distance(s, e):
-    touch = False
+    MIN = 2*SEG_SIZE
     for i in range(s.life):
         for j in range(len(e.segments)):
             x11, y11, x12, y12 = c.coords(s.segments[i].instance)
             x21, y21, x22, y22 = c.coords(e.segments[j].instance)
-            if abs(x11 - x21) <= SEG_SIZE and abs(y11 - y21) <= SEG_SIZE or abs(x12 - x22) <= SEG_SIZE and abs(y12 - y22) <= SEG_SIZE:
-                touch = True
-    return touch
+            K = min(sqrt((abs(x11 - x21))**2 + (abs(y11 - y21))**2), sqrt((abs(x12 - x22))**2 + (abs(y12 - y22))**2))
+            if MIN > K:
+                MIN = K
+    return MIN
 
 
 def main():
@@ -42,12 +44,12 @@ def main():
         if x12 > WIDTH or x11 < 0 or y11 < 0 or y12 > HEIGHT:
             IN_GAME = False
         # Check for collision with enemy
-        if distance(s, e):
+        if distance(s, e) < SEG_SIZE:
             # тут сразу и жизнь режется
             s.delete_seg()
             e.add_segment()
-            if s.life == 0:
-                IN_GAME = False
+        if s.life == 0:
+            IN_GAME = False
         s.move()
         e.move()
         # Eating apples
@@ -69,6 +71,9 @@ def main():
                   font="Arial 20",
                   fill="red")
 
+
+#####################################################################
+# Classes
 
 class Segment(object):
     """ Single snake segment """
@@ -99,7 +104,7 @@ class Snake(object):
 
     def delete(self):
         c.delete(self.segments)
-        self.segments = []
+        self.segments = None
 
     def move(self):
         """ Moves the snake with the specified vector"""
@@ -125,9 +130,10 @@ class Snake(object):
         return self._delete()
 
     def _delete(self):
-        l = s.segments[:-1]
+        l = s.segments[1:]
         self.segments = l
         self.life -= 1
+        c.delete(s.segments[0])
 
     def change_direction(self, event):
         """ Changes direction of snake """
@@ -147,7 +153,7 @@ class Enemy(object):
 
     def delete(self):
         c.delete(self.segments)
-        self.segments = []
+        self.segments = None
 
     def move(self):
         """ Moves the enemy with a random vector"""
@@ -181,11 +187,9 @@ class Enemy(object):
             L = ["Down", "Right", "Up", "Left"]
             self.vector = L[random.randint(0, 3)]
 
+##############################################################################
 
 
-# Setting up window
-root = Tk()
-root.title("Catch the Ribosome!")
 
 
 ####################################################################
@@ -230,6 +234,11 @@ def save():
     filewin = Toplevel(root)
     button = Button(filewin, text="Save progress")
     button.pack()
+################################################################################
+
+# Setting up window
+root = Tk()
+root.title("Catch the Ribosome!")
 
 mainmenu = Menu(root)
 # Пропишем рамку
