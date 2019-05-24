@@ -3,16 +3,15 @@ from tkinter import messagebox as mb
 import random
 from math import *
 import time
-from classes import *
-from functions import *
+import classes  as cl
+import functions as fu
 
 # Globals
 WIDTH = 1000
 HEIGHT = 600
 SEG_SIZE = 20
 IN_GAME = True
-Score = 0
-
+Score = cl.Score(0)
 ##############################################################
 # Helper functions
 #
@@ -39,29 +38,33 @@ Score = 0
 #     return MIN
 #
 
-def main():
+def main(IN_GAME, Score):
     """ Handles game process """
-    global IN_GAME, BLOCK
+    # global IN_GAME, BLOCK
     if IN_GAME:
         s.move()
         e.move()
+        # print("func main()\nprint segments and segments coordinates")
+        # print(s.segments)
+        for segm in s.segments:
+            print(c.coords(segm.instance))
         s_head_coords = c.coords(s.segments[-1].instance)
         x11, y11, x12, y12 = s_head_coords
         # Check for collision with gamefield edges
         if x12 > WIDTH or x11 < 0 or y11 < 0 or y12 > HEIGHT:
             IN_GAME = False
         # Check for collision with enemy
-        elif distance(s, e) < SEG_SIZE:
+        elif fu.distance(s, e) < SEG_SIZE:
             # тут сразу и жизнь режется
             s.delete_seg()
             e.add_enemy_segment()
         # elif s.life == 0:
         #     IN_GAME = False
         # Eating apples
-        elif  [x11, y11, x12, y12] == c.coords(BLOCK):
+        elif s_head_coords == c.coords(fu.BLOCK):
             s.add_segment()
-            c.delete(BLOCK)
-            create_block()
+            c.delete(fu.BLOCK)
+            fu.create_block()
             Score += 1
         # Self-eating
         else:
@@ -69,13 +72,13 @@ def main():
                 if s_head_coords == c.coords(s.segments[index].instance):
                     IN_GAME = False
                     pass
-        root.after(100, main)
+        root.after(100, main(IN_GAME, Score))
         # Not IN_GAME -> stop game and print message
     else:
-        c.create_text(WIDTH / 2, HEIGHT / 2,
+        return c.create_text(WIDTH / 2, HEIGHT / 2,
                   text="GAME OVER!",
                   font="Arial 20",
-                  fill="red")
+                  fill="red"), Score
 
 
 #####################################################################
@@ -202,61 +205,65 @@ def main():
 
 
 ####################################################################
-def new_game():
-    answer = mb.askyesno(title="Question", message="Start new game?")
-    if answer == True:
-        root = Tk()
-        root.title("Catch the Ribosome!")
 
-        mainmenu = Menu(root)
-        root.config(menu=mainmenu)
-        # Пропишем рамку
-        frame = Frame(root, bg='pink', bd=5)
-        root.config(menu=mainmenu)
-        mainmenu.add_command(label="New game", command=new_game)
-        mainmenu.add_command(label="Load game", command=load_game)
-        mainmenu.add_command(label="Save", command=save)
-        mainmenu.add_command(label="Exit", command=root.quit)
-        Button(root, text="Score {}".format(Score), command=score).grid(ipadx=100, ipady=20)
-
-        # c.delete()
-        # c.delete(BLOCK)
-        c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
-        c.grid()
-        # catch keypressing
-        c.focus_set()
-        # creating segments and snake
-        segments = [Segment(10, 300),
-                        Segment(30, 300),
-                        Segment(50, 300),
-                        Segment(70, 300),
-                        Segment(90, 300)]
-        enemy_segments = [Enemy_segment(700, 400),
-                          Enemy_segment(720, 400),
-                          Enemy_segment(740, 400)]
-        s = Snake(segments)
-        e = Enemy(enemy_segments)
-        # Reaction on keypress
-        c.bind("<KeyPress>", s.change_direction)
-        # c.bind("<KeyPress>", e.change_direction)
-        Score = 0
-        main()
-        root.mainloop()
+# def new_game():
+#     answer = mb.askyesno(title="Question", message="Start new game?")
+#     if answer == True:
+#         root = Tk()
+#         root.title("Catch the Ribosome!")
+#
+#         mainmenu = Menu(root)
+#         root.config(menu=mainmenu)
+#         # Пропишем рамку
+#         frame = Frame(root, bg='pink', bd=5)
+#         root.config(menu=mainmenu)
+#         mainmenu.add_command(label="New game", command=new_game)
+#         mainmenu.add_command(label="Load game", command=fu.load_game)
+#         mainmenu.add_command(label="Save", command=fu.save)
+#         mainmenu.add_command(label="Exit", command=root.quit)
+#         Button(root, text="Score {}".format(Score), command=fu.score).grid(ipadx=100, ipady=20)
 
 
 
-def load_game():
-    filewin = Toplevel(root)
-    button = Button(filewin, text="Load game")
-    button.pack()
 
-def save():
-    filewin = Toplevel(root)
-    button = Button(filewin, text="Save progress")
-    button.pack()
+# c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
+# c.grid()
+# # catch keypressing
+# c.focus_set()
+# creating segments and snake
 
-def score():
-    print('Score '.format(Score))
+segments = [cl.Segment(10, 300, c),
+                cl.Segment(30, 300, c),
+                cl.Segment(50, 300, c),
+                cl.Segment(70, 300, c),
+                cl.Segment(90, 300, c)]
+
+enemy_segments = [cl.Enemy_segment(700, 400),
+                  cl.Enemy_segment(720, 400),
+                  cl.Enemy_segment(740, 400)]
+s = cl.Snake(segments)
+e = cl.Enemy(enemy_segments)
+# Reaction on keypress
+c.bind("<KeyPress>", s.change_direction)
+# c.bind("<KeyPress>", e.change_direction)
+Score = 0
+main(True, 0)
+root.mainloop()
+
+
+
+# def load_game():
+#     filewin = Toplevel(root)
+#     button = Button(filewin, text="Load game")
+#     button.pack()
+#
+# def save():
+#     filewin = Toplevel(root)
+#     button = Button(filewin, text="Save progress")
+#     button.pack()
+#
+# def score():
+#     print('Score '.format(Score))
 
 ################################################################################
 
@@ -269,11 +276,11 @@ root.config(menu=mainmenu)
 # Пропишем рамку
 frame = Frame(root, bg='pink', bd=5)
 root.config(menu=mainmenu)
-mainmenu.add_command(label="New game", command=new_game)
-mainmenu.add_command(label="Load game", command=load_game)
-mainmenu.add_command(label="Save", command=save)
+mainmenu.add_command(label="New game", command=fu.new_game)
+mainmenu.add_command(label="Load game", command=fu.load_game)
+mainmenu.add_command(label="Save", command=fu.save)
 mainmenu.add_command(label="Exit", command=root.quit)
-Button(root, text="Score {}".format(Score), command=score).grid(ipadx=100, ipady=20)
+Button(root, text="Score {}".format(cl.Score), command=fu.score).grid(ipadx=100, ipady=20)
 
 ####################################################################
 
@@ -285,20 +292,24 @@ c.grid()
 # catch keypressing
 c.focus_set()
 # creating segments and snake
-segments = [Segment(10, 300),
-            Segment(30, 300),
-            Segment(50, 300),
-            Segment(70, 300),
-            Segment(90, 300)]
+segments = [cl.Segment(10, 300),
+            cl.Segment(30, 300),
+            cl.Segment(50, 300),
+            cl.Segment(70, 300),
+            cl.Segment(90, 300)]
 
-enemy_segments = [Enemy_segment(700, 400),
-                  Enemy_segment(720, 400),
-                  Enemy_segment(740, 400)]
-s = Snake(segments)
-e = Enemy(enemy_segments)
+
+enemy_segments = [cl.Enemy_segment(700, 400),
+                  cl.Enemy_segment(720, 400),
+                  cl.Enemy_segment(740, 400)]
+s = cl.Snake(segments)
+print("main module, print segments coordinates in snake")
+for segm in s.segments:
+    print(c.coords(segm))
+e = cl.Enemy(enemy_segments)
 # Reaction on keypress
 c.bind("<KeyPress>", s.change_direction)
 
-create_block()
-main()
+fu.create_block()
+main(IN_GAME, 0)
 root.mainloop()
