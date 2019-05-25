@@ -8,14 +8,42 @@ SEG_SIZE = 20
 
 #####################################################################
 # Classes
-
 #####################################################################
+
+class Block(Canvas):
+    def __init__(self, size, c, x = 0, y = 0 ):
+        super().__init__()
+        self.x = size * random.randint(1, (WIDTH - size) / size)
+        self.y = size * random.randint(1, (HEIGHT - size) / size)
+        self.size = size
+        self.canvas = c
+        self.life = 1
+        self.instance = self.canvas.create_rectangle(self.x, self.y,
+                                           self.x + self.size, self.y + self.size,
+                                           fill="red", outline='black')
+
+    def create_block(self):
+        """ Creates an apple to be eaten """
+        self.x = self.size * random.randint(1, (WIDTH - self.size) / self.size)
+        self.y = self.size * random.randint(1, (HEIGHT - self.size) / self.size)
+        self.canvas.create_rectangle(self.x, self.y,
+                                     self.x + self.size, self.y + self.size,
+                                     fill="red", outline='black')
+
+
+    def delete_block(self):
+        self.canvas.delete(self.instance)
+
+
+
 class Segment:
     """ Single snake segment """
     def __init__(self, x, y, c):
+        self.c = c
         self.instance = c.create_rectangle(x, y,
                                            x + SEG_SIZE, y + SEG_SIZE,
                                            fill="white")
+        self.life = 1
 
 
 class Enemy_segment:
@@ -24,6 +52,7 @@ class Enemy_segment:
         self.instance = c.create_rectangle(x, y,
                                            x + SEG_SIZE, y + SEG_SIZE,
                                            fill="dark green")
+        self.life = 1
 ###############################################################################
 class Snake:
     """ Simple Snake class """
@@ -59,10 +88,10 @@ class Snake:
         x = last_seg[2] - SEG_SIZE
         y = last_seg[3] - SEG_SIZE
         self.life += 1
-        self.segments.insert(0, Segment(x, y))
+        self.segments.insert(0, Segment(x, y, c))
 
-    def delete_seg(self):
-        return self._delete()
+    def delete_seg(self, c):
+        return self._delete(c)
 
     def _delete(self, c):
         l = self.segments[1:]
@@ -80,6 +109,7 @@ class Enemy:
     """ Random enemy class """
     def __init__(self, segments):
         self.segments = segments
+        self.life = 3
         # possible moves
         self.mapping = {"Down": (0, 1), "Right": (1, 0),
                         "Up": (0, -1), "Left": (-1, 0)}

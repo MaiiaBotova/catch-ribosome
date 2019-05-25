@@ -10,20 +10,21 @@ SEG_SIZE = 20
 ##############################################################
 # Helper functions
 
-def create_block(c):
-    """ Creates an apple to be eaten """
-    global BLOCK
-    posx = SEG_SIZE * random.randint(1, (WIDTH - SEG_SIZE) / SEG_SIZE)
-    posy = SEG_SIZE * random.randint(1, (HEIGHT - SEG_SIZE) / SEG_SIZE)
-    BLOCK = c.create_oval(posx, posy,
-                          posx + SEG_SIZE, posy + SEG_SIZE,
-                          fill="red", outline='black')
-    return BLOCK
+
+# def create_block(c):
+#     """ Creates an apple to be eaten """
+#     global BLOCK
+#     posx = SEG_SIZE * random.randint(1, (WIDTH - SEG_SIZE) / SEG_SIZE)
+#     posy = SEG_SIZE * random.randint(1, (HEIGHT - SEG_SIZE) / SEG_SIZE)
+#     BLOCK = c.create_oval(posx, posy,
+#                           posx + SEG_SIZE, posy + SEG_SIZE,
+#                           fill="red", outline='black')
+#     return BLOCK
 
 def distance(s, e, c):
     MIN = 2*SEG_SIZE
     for i in range(s.life):
-        for j in range(len(e.segments)):
+        for j in range(e.life):
             s_head_coords = c.coords(s.segments[i].instance)
             x11, y11, x12, y12 = s_head_coords
             e_head_coords = c.coords(e.segments[j].instance)
@@ -99,7 +100,6 @@ def new_game(c, s, e, main):
 
         # Reaction on keypress
         c.bind("<KeyPress>", s.change_direction)
-
         fu.create_block(c)
         IN_GAME = True
         main(IN_GAME, 0, c)
