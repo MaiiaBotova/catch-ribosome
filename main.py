@@ -12,6 +12,15 @@ HEIGHT = 500
 SEG_SIZE = 20
 Score = 0
 ##############################################################
+def second_lvl(Score):
+    c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
+    # c.place(relx=-5, rely=-1, anchor=CENTER)
+    c.grid(row=0, column=0, sticky=(N, E, S, W))
+    # catch keypressing
+    c.focus_set()
+
+
+##############################################################
 
 
 def main(IN_GAME, Score, c, apple):
@@ -26,7 +35,14 @@ def main(IN_GAME, Score, c, apple):
         s_head_coords = c.coords(s.segments[-1].instance)
         x11, y11, x12, y12 = s_head_coords
         # Check for collision with gamefield edges
-        if x12 > WIDTH or x11 < 0 or y11 < 0 or y12 > HEIGHT:
+        if x12 > WIDTH:
+            c.create_text(WIDTH / 2, HEIGHT / 2,
+                             text="GOOD JOB!",
+                             font="Arial 20",
+                             fill="red")
+            c.destroy()
+            second_lvl(Score)
+        if x11 < 0 or y11 < 0 or y12 > HEIGHT:
             IN_GAME = False
         # Check for collision with enemy
         elif fu.distance(s, e, c) < SEG_SIZE:
@@ -141,7 +157,7 @@ class MainFrame(Frame):
         self._canvas = self._add_canvas()
 
     def add_game(self, game):
-        self._game = game
+        self._game = Game()
 
     def _add_menu(self):
         mainmenu = tk.Menu(self.root)
@@ -154,22 +170,18 @@ class MainFrame(Frame):
         mainmenu.add_command(label="Save", command=fu.save)
         mainmenu.add_command(label="Exit", command=self._root.quit)
 
-    def _add_canvas(Canvas):
-        super.__init__()
-
-
-
-
-
-
+    def _add_canvas(self):
+        self._root.title("Catch the Ribosome!")
+        self.frame = Frame(self.root, bg='pink', bd=5)
+        self._canvas = Canvas(self.root, width=WIDTH, height=HEIGHT, bg="peach puff")
+        self._canvas.grid(row=0, column=0, sticky=(N, E, S, W))
 
 
     def new_game(self):
         answer = mb.askyesno(title="Question", message="Start new game?")
         if answer == True:
-            IN_GAME = True
-            main(IN_GAME, 0, c)
-            root.mainloop()
+            self._canvas.clear()
+            self.game.start()
 
     def load_game(root):
         filewin = Toplevel(root)
@@ -190,36 +202,43 @@ class Game:
         self.snake = cl.Snake()
         self.enemies = [cl.Enemy() for _ in range(num_enemies)]
         self.score = 0
-        self.block = block
+        self.block = cl.Block()
 
     def start(self):
-        self._move()
         resume = self._is_game_over()
-        if resume:
+        if not resume:
             main()
             root.mainloop()
 
-    def _is_game_over(self, snake, enemy):
-        x1, y1, x2, y2 = snake.coords
+
+
+    def _is_game_over(self):
+        result = False
+        x1, y1, x2, y2 = self.snake.segments[-1].instance
         if x2 > WIDTH or x1 < 0 or y1 < 0 or y2 > HEIGHT:
+            result = True
             self._game_over()
         # Check for collision with enemy
-        elif fu.distance(s, e, c) < SEG_SIZE:
-            # тут сразу и жизнь режется
-            snake.delete_seg()
-            enemy.add_enemy_segment()
-        elif snake.life == 0:
+        elif self.snake.life == 0:
+            result = True
             self._game_over()
         # Self-eating
         else:
             for index in range(len(s.segments) - 1):
-                if snake.coords[0] == c.coords(s.segments[index].instance):
+                if self.snake.coords[0] == c.coords(s.segments[index].instance):
+                    result = True
                     self._game_over()
+        return result
+
+
+        # collisions with enemies
+        # for enemy in self.enemies:
+        #     if fu.distance(s, enemy, c) < SEG_SIZE:
+        #         self.snake.delete_seg()
+        #         enemy.add_enemy_segment()
 
     def _game_over(self):
         c.create_text(WIDTH / 2, HEIGHT / 2,
                          text="GAME OVER!\n Your score: {}".format(self.score),
                          font="Arial 20",
                          fill="red")
-
-

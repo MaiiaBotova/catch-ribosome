@@ -3,7 +3,7 @@ import random
 
 # Globals
 WIDTH = 1000
-HEIGHT = 600
+HEIGHT = 500
 SEG_SIZE = 20
 
 #####################################################################
@@ -24,8 +24,8 @@ class Block(Canvas):
 
     def create_block(self):
         """ Creates an apple to be eaten """
-        self.x = self.size * random.randint(1, (WIDTH - self.size) / self.size)
-        self.y = self.size * random.randint(1, (HEIGHT - self.size) / self.size)
+        self.x = self.size * random.randint(1, (WIDTH - self.size - 1) / self.size)
+        self.y = self.size * random.randint(1, (HEIGHT - self.size - 1) / self.size)
         self.canvas.create_rectangle(self.x, self.y,
                                      self.x + self.size, self.y + self.size,
                                      fill="red", outline='black')
