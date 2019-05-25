@@ -9,12 +9,14 @@ WIDTH = 1000
 HEIGHT = 500
 SEG_SIZE = 20
 # IN_GAME = True
-Score = cl.Score(0)
+# Score = cl.Score(0)
+Score = 0
 ##############################################################
 
 
 def main(IN_GAME, Score, c):
     """ Handles game process """
+    fu.create_block(c)
     if IN_GAME:
         s.move(c)
         e.move(c)
@@ -35,7 +37,7 @@ def main(IN_GAME, Score, c):
         # Eating apples
         elif s_head_coords == c.coords(fu.BLOCK):
             s.add_segment()
-            c.delete(fu.BLOCK)
+            c.delete(BLOCK)
             fu.create_block()
             Score += 1
         # Self-eating
@@ -55,20 +57,10 @@ def main(IN_GAME, Score, c):
 
 ##############################################################################
 
-
-
-
-####################################################################
-
-
-
-
-################################################################################
-
 # Setting up window
 root = Tk()
 root.title("Catch the Ribosome!")
-
+# Making menu string
 mainmenu = Menu(root)
 root.config(menu=mainmenu)
 # Пропишем рамку
@@ -78,15 +70,15 @@ mainmenu.add_command(label="New game", command=fu.new_game)
 mainmenu.add_command(label="Load game", command=fu.load_game)
 mainmenu.add_command(label="Save", command=fu.save)
 mainmenu.add_command(label="Exit", command=root.quit)
-Button(root, text="Score {}".format(cl.Score), command=fu.score).grid(ipadx=100, ipady=20)
+Button(root, text="Score {}".format(Score), command=fu.score).grid(ipadx=100, ipady=20)
 
 ####################################################################
 
 
+
+# Drawind canvas
 c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
 c.grid()
-
-
 # catch keypressing
 c.focus_set()
 # creating segments and snake
@@ -98,13 +90,12 @@ segments = [cl.Segment(10, 300, c),
 
 enemy_segments = [cl.Enemy_segment(700, 400, c),
                   cl.Enemy_segment(720, 400, c),
-                  cl.Enemy_segment(740, 400,c )]
+                  cl.Enemy_segment(740, 400, c)]
 s = cl.Snake(segments)
 e = cl.Enemy(enemy_segments)
-
 # Reaction on keypress
 c.bind("<KeyPress>", s.change_direction)
-
+# Creating an apple
 fu.create_block(c)
 IN_GAME = True
 main(IN_GAME, 0, c)
@@ -132,10 +123,16 @@ class MainFrame(Frame):
         mainmenu.add_command(label="Save", command=fu.save)
         mainmenu.add_command(label="Exit", command=self._root.quit)
 
+    def _add_canvas(Canvas):
+        super.__init__()
+
+
+
     def new_game(self):
         answer = mb.askyesno(title="Question", message="Start new game?")
         if answer == True:
-            self._game.restart()
+
+            # self._game.restart()
             # self._canvas.delete(BLOCK)
             # self._game.snake.delete()
             # self._game.delete_enemies()
@@ -177,7 +174,17 @@ class MainFrame(Frame):
         button.pack()
 
 
+
+
 class Game:
     def __init__(self, num_enemies):
-        self.snake = Snake()
-        self.enemies = [Enemy() for _ in range(num_enemies)]
+        self.snake = cl.Snake()
+        self.enemies = [cl.Enemy() for _ in range(num_enemies)]
+        self.score = 0
+
+    def start(self):
+        self._move()
+        resume = self._is_game_over()
+        if resume:
+            main()
+            root.mainloop()

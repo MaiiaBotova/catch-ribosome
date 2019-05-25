@@ -18,6 +18,7 @@ def create_block(c):
     BLOCK = c.create_oval(posx, posy,
                           posx + SEG_SIZE, posy + SEG_SIZE,
                           fill="red", outline='black')
+    return BLOCK
 
 def distance(s, e, c):
     MIN = 2*SEG_SIZE
@@ -118,4 +119,3 @@ def save(root):
 
 def score(Score):
     print('Score '.format(Score.points))
-
