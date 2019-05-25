@@ -1,23 +1,35 @@
 from tkinter import *
+import random
+
+# Globals
+WIDTH = 1000
+HEIGHT = 600
+SEG_SIZE = 20
+
 #####################################################################
 # Classes
 
-class Segment(object):
+class Score:
+    """Points counter"""
+    def __init__(self, points):
+        self.points = points
+
+class Segment:
     """ Single snake segment """
-    def __init__(self, x, y):
+    def __init__(self, x, y, c):
         self.instance = c.create_rectangle(x, y,
                                            x + SEG_SIZE, y + SEG_SIZE,
                                            fill="white")
 
-class Enemy_segment(object):
+
+class Enemy_segment:
     """ Single enemy segment """
-    def __init__(self, x, y):
+    def __init__(self, x, y, c):
         self.instance = c.create_rectangle(x, y,
                                            x + SEG_SIZE, y + SEG_SIZE,
                                            fill="dark green")
 
-
-class Snake(object):
+class Snake:
     """ Simple Snake class """
 
     def __init__(self, segments, life = 5):
@@ -29,23 +41,23 @@ class Snake(object):
         # initial movement direction
         self.vector = self.mapping["Right"]
 
-    def delete(self):
-        c.delete(self.segments)
-        self.segments = None
+    # def delete(self):
+    #     c.delete(self.segments)
+    #     self.segments = None
 
-    def move(self):
+    def move(self, c):
         """ Moves the snake with the specified vector"""
         for index in range(len(self.segments) - 1):
             segment = self.segments[index].instance
             x1, y1, x2, y2 = c.coords(self.segments[index + 1].instance)
-            c.coords(segment, x1, y1, x2, y2)
+            c.coords( x1, y1, x2, y2)
 
         x1, y1, x2, y2 = c.coords(self.segments[-2].instance)
         c.coords(self.segments[-1].instance,
                  x1 + self.vector[0] * SEG_SIZE, y1 + self.vector[1] * SEG_SIZE,
                  x2 + self.vector[0] * SEG_SIZE, y2 + self.vector[1] * SEG_SIZE)
 
-    def add_segment(self):
+    def add_segment(self, c):
         """ Adds segment to the snake """
         last_seg = c.coords(self.segments[0].instance)
         x = last_seg[2] - SEG_SIZE
@@ -56,11 +68,11 @@ class Snake(object):
     def delete_seg(self):
         return self._delete()
 
-    def _delete(self):
-        l = s.segments[1:]
+    def _delete(self, c):
+        l = self.segments[1:]
         self.segments = l
         self.life -= 1
-        c.delete(s.segments[0])
+        c.delete(self.segments[0])
 
     def change_direction(self, event):
         """ Changes direction of snake """
@@ -68,7 +80,7 @@ class Snake(object):
             self.vector = self.mapping[event.keysym]
 
 
-class Enemy(object):
+class Enemy:
     """ Random enemy class """
     def __init__(self, segments):
         self.segments = segments
@@ -82,7 +94,7 @@ class Enemy(object):
         c.delete(self.segments)
         self.segments = None
 
-    def move(self):
+    def move(self, c):
         """ Moves the enemy with a random vector"""
         for index in range(len(self.segments) - 1):
             segment = self.segments[index].instance
@@ -104,7 +116,7 @@ class Enemy(object):
                  x1 + self.vector[0] * SEG_SIZE, y1 + self.vector[1] * SEG_SIZE,
                  x2 + self.vector[0] * SEG_SIZE, y2 + self.vector[1] * SEG_SIZE)
 
-    def add_enemy_segment(self):
+    def add_enemy_segment(self, c):
         """ Adds segment to the enemy """
         last_seg = c.coords(self.segments[0].instance)
         x = last_seg[2] - SEG_SIZE
