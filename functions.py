@@ -73,10 +73,10 @@ def distance(s, e, c):
 #                   font="Arial 20",
 #                   fill="red")
 
-def new_game(c, s, e, main):
+def new_game(c, s, e, main, apple):
     answer = mb.askyesno(title="Question", message="Start new game?")
     if answer == True:
-        c.delete(BLOCK)
+        c.delete(apple)
         c.delete(s.segments)
         c.delete(e.segments)
         root = Tk()

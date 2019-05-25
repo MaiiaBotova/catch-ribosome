@@ -30,7 +30,6 @@ class Block(Canvas):
                                      self.x + self.size, self.y + self.size,
                                      fill="red", outline='black')
 
-
     def delete_block(self):
         self.canvas.delete(self.instance)
 
@@ -56,7 +55,6 @@ class Enemy_segment:
 ###############################################################################
 class Snake:
     """ Simple Snake class """
-
     def __init__(self, segments, life = 5):
         self.segments = segments
         self.life = life
@@ -147,7 +145,7 @@ class Enemy:
         last_seg = c.coords(self.segments[0].instance)
         x = last_seg[2] - SEG_SIZE
         y = last_seg[3] - SEG_SIZE
-        self.segments.insert(0, Enemy_segment(x, y))
+        self.segments.insert(0, Enemy_segment(x, y, c))
 
     def change_direction(self, event):
         """ Changes direction of enemy"""

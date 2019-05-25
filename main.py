@@ -1,3 +1,4 @@
+import random
 from tkinter import *
 from tkinter import messagebox as mb
 from math import *
@@ -18,6 +19,8 @@ def main(IN_GAME, Score, c, apple):
     if IN_GAME:
         s.move(c)
         e.move(c)
+        e2.move(c)
+        e3.move(c)
         for segm in s.segments:
             print(c.coords(segm.instance))
         s_head_coords = c.coords(s.segments[-1].instance)
@@ -30,6 +33,12 @@ def main(IN_GAME, Score, c, apple):
             # тут сразу и жизнь режется
             s.delete_seg(c)
             e.add_enemy_segment(c)
+        elif fu.distance(s, e2, c) < SEG_SIZE:
+            s.delete_seg(c)
+            e2.add_enemy_segment(c)
+        elif fu.distance(s, e3, c) < SEG_SIZE:
+            s.delete_seg(c)
+            e3.add_enemy_segment(c)
         # elif s.life == 0:
         #     IN_GAME = False
         # Eating apples
@@ -38,6 +47,10 @@ def main(IN_GAME, Score, c, apple):
             apple.delete_block()
             apple = cl.Block(SEG_SIZE, c)
             Score += 1
+            # context = c.getContext('2d')
+            # context.getContext("2d").clearRect(100, 50, 10, 10)
+            c.create_text(100, 50, anchor=N, font="Purisa",
+                          text="Score {}".format(Score))
         # Self-eating
         else:
             for index in range(len(s.segments) - 1):
@@ -58,47 +71,60 @@ def main(IN_GAME, Score, c, apple):
 ##############################################################################
 root = Tk()
 root.title("Catch the Ribosome!")
-# Making menu string
-mainmenu = Menu(root)
-root.config(menu=mainmenu)
 # Creating frame
 frame = Frame(root, bg='pink', bd=5)
+# Making menu string
+mainmenu = Menu(root)
 root.config(menu=mainmenu)
 mainmenu.add_command(label="New game", command=fu.new_game)
 mainmenu.add_command(label="Load game", command=fu.load_game)
 mainmenu.add_command(label="Save", command=fu.save)
 mainmenu.add_command(label="Exit", command=root.quit)
-Button(root, text="Score {}".format(Score), command=fu.score).grid(ipadx=100, ipady=20)
+# Button(root, text="Score {}".format(Score), command=fu.score).grid(ipadx=100, ipady=20)
 
 ####################################################################
 
-
-
 # Drawing canvas
 c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
-c.grid()
+# c.place(relx=-5, rely=-1, anchor=CENTER)
+c.grid(row=0, column = 0,  sticky=(N, E, S, W))
 # catch keypressing
 c.focus_set()
 # creating segments and snake
-segments = [cl.Segment(10, 300, c),
-                cl.Segment(30, 300, c),
-                cl.Segment(50, 300, c),
-                cl.Segment(70, 300, c),
-                cl.Segment(90, 300, c)]
+segments = [cl.Segment(0, 300, c),
+                cl.Segment(20, 300, c),
+                cl.Segment(40, 300, c),
+                cl.Segment(60, 300, c),
+                cl.Segment(80, 300, c)]
 
-enemy_segments = [cl.Enemy_segment(700, 400, c),
-                  cl.Enemy_segment(720, 400, c),
-                  cl.Enemy_segment(740, 400, c)]
+enemy_segments = [cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+                  cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+                  cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c)]
 s = cl.Snake(segments)
 e = cl.Enemy(enemy_segments)
+e2 = cl.Enemy([cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+                  cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+                  cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c)])
+e3 = cl.Enemy([cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+                  cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+                  cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c)])
 # Reaction on keypress
 c.bind("<KeyPress>", s.change_direction)
 # Creating an apple
 apple = cl.Block(SEG_SIZE, c)
 apple.instance
 IN_GAME = True
+c.create_text(100, 50, anchor=N, font="Purisa",
+    text="Score 0")
 main(IN_GAME, 0, c, apple)
 root.mainloop()
+########################################################################################
+# How it should be
+########################################################################################
+
+frame = MainFrame(root)
+game = Game(frame, num_enemies)
+frame.add_game(game)
 
 ##########################################################################################
 # Classes MainFrame and Game
@@ -109,11 +135,13 @@ class MainFrame(Frame):
         super().__init__()
         self._root = root
         self.grid(row=0, column=0, sticky=(N, E, S, W))
-        self._game = game
+        self._game = None
         self._game.add_frame(self)
         self._add_menu()
         self._canvas = self._add_canvas()
 
+    def add_game(self, game):
+        self._game = game
 
     def _add_menu(self):
         mainmenu = tk.Menu(self.root)
@@ -128,6 +156,11 @@ class MainFrame(Frame):
 
     def _add_canvas(Canvas):
         super.__init__()
+
+
+
+
+
 
 
 
@@ -182,3 +215,11 @@ class Game:
             for index in range(len(s.segments) - 1):
                 if snake.coords[0] == c.coords(s.segments[index].instance):
                     self._game_over()
+
+    def _game_over(self):
+        c.create_text(WIDTH / 2, HEIGHT / 2,
+                         text="GAME OVER!\n Your score: {}".format(self.score),
+                         font="Arial 20",
+                         fill="red")
+
+
