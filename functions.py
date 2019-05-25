@@ -74,46 +74,34 @@ def distance(s, e, c):
 def new_game(c, s, e, main):
     answer = mb.askyesno(title="Question", message="Start new game?")
     if answer == True:
-        # root = Tk()
-        # root.title("Catch the Ribosome!")
-        # mainmenu = Menu(root)
-        # root.config(menu=mainmenu)
-        # # Пропишем рамку
-        # frame = Frame(root, bg='pink', bd=5)
-        # root.config(menu=mainmenu)
-        # mainmenu.add_command(label="New game", command=new_game)
-        # mainmenu.add_command(label="Load game", command=load_game)
-        # mainmenu.add_command(label="Save", command=save)
-        # mainmenu.add_command(label="Exit", command=root.quit)
-        # Button(root, text="Score {}".format(Score), command=score).grid(ipadx=100, ipady=20)
-        # # c.delete()
-        # # c.delete(BLOCK)
-        # c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
-        # c.grid()
-        # # catch keypressing
-        # c.focus_set()
-        # # creating segments and snake
-        # segments = [Segment(10, 300),
-        #                 Segment(30, 300),
-        #                 Segment(50, 300),
-        #                 Segment(70, 300),
-        #                 Segment(90, 300)]
-        # enemy_segments = [Enemy_segment(700, 400),
-        #                   Enemy_segment(720, 400),
-        #                   Enemy_segment(740, 400)]
-        # s = Snake(segments)
-        # e = Enemy(enemy_segments)
-        # # Reaction on keypress
-        # c.bind("<KeyPress>", s.change_direction)
-        # # c.bind("<KeyPress>", e.change_direction)
-        # Score = 0
         c.delete(BLOCK)
         c.delete(s.segments)
         c.delete(e.segments)
         root = Tk()
         c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
         c.grid()
-        main()
+
+        # catch keypressing
+        c.focus_set()
+        # creating segments and snake
+        segments = [cl.Segment(10, 300, c),
+                    cl.Segment(30, 300, c),
+                    cl.Segment(50, 300, c),
+                    cl.Segment(70, 300, c),
+                    cl.Segment(90, 300, c)]
+
+        enemy_segments = [cl.Enemy_segment(700, 400, c),
+                          cl.Enemy_segment(720, 400, c),
+                          cl.Enemy_segment(740, 400, c)]
+        s = cl.Snake(segments)
+        e = cl.Enemy(enemy_segments)
+
+        # Reaction on keypress
+        c.bind("<KeyPress>", s.change_direction)
+
+        fu.create_block(c)
+        IN_GAME = True
+        main(IN_GAME, 0, c)
         root.mainloop()
 
 

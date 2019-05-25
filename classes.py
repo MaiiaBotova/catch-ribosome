@@ -13,7 +13,7 @@ class Score:
     """Points counter"""
     def __init__(self, points):
         self.points = points
-
+#####################################################################
 class Segment:
     """ Single snake segment """
     def __init__(self, x, y, c):
@@ -28,7 +28,7 @@ class Enemy_segment:
         self.instance = c.create_rectangle(x, y,
                                            x + SEG_SIZE, y + SEG_SIZE,
                                            fill="dark green")
-
+###############################################################################
 class Snake:
     """ Simple Snake class """
 
@@ -41,16 +41,16 @@ class Snake:
         # initial movement direction
         self.vector = self.mapping["Right"]
 
-    # def delete(self):
-    #     c.delete(self.segments)
-    #     self.segments = None
+    def delete(self):
+        c.delete(self.segments)
+        self.segments = None
 
     def move(self, c):
         """ Moves the snake with the specified vector"""
         for index in range(len(self.segments) - 1):
             segment = self.segments[index].instance
             x1, y1, x2, y2 = c.coords(self.segments[index + 1].instance)
-            c.coords( x1, y1, x2, y2)
+            c.coords(x1, y1, x2, y2)
 
         x1, y1, x2, y2 = c.coords(self.segments[-2].instance)
         c.coords(self.segments[-1].instance,
@@ -79,7 +79,7 @@ class Snake:
         if event.keysym in self.mapping:
             self.vector = self.mapping[event.keysym]
 
-
+######################################################################
 class Enemy:
     """ Random enemy class """
     def __init__(self, segments):
@@ -90,7 +90,7 @@ class Enemy:
         # initial movement direction
         self.vector = self.mapping["Down"]
 
-    def delete(self):
+    def delete(self, c):
         c.delete(self.segments)
         self.segments = None
 
@@ -130,3 +130,7 @@ class Enemy:
             self.vector = L[random.randint(0, 3)]
 
 ##############################################################################
+
+class :
+    def __init__(self):
+        self.
