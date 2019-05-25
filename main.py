@@ -3,20 +3,18 @@ from tkinter import messagebox as mb
 from math import *
 import classes  as cl
 import functions as fu
+import frame as fr
 
 # Globals
 WIDTH = 1000
 HEIGHT = 500
 SEG_SIZE = 20
-# IN_GAME = True
-# Score = cl.Score(0)
 Score = 0
 ##############################################################
 
 
-def main(IN_GAME, Score, c):
+def main(IN_GAME, Score, c, apple):
     """ Handles game process """
-    fu.create_block(c)
     if IN_GAME:
         s.move(c)
         e.move(c)
@@ -30,15 +28,15 @@ def main(IN_GAME, Score, c):
         # Check for collision with enemy
         elif fu.distance(s, e, c) < SEG_SIZE:
             # тут сразу и жизнь режется
-            s.delete_seg()
-            e.add_enemy_segment()
+            s.delete_seg(c)
+            e.add_enemy_segment(c)
         # elif s.life == 0:
         #     IN_GAME = False
         # Eating apples
-        elif s_head_coords == c.coords(fu.BLOCK):
-            s.add_segment()
-            c.delete(BLOCK)
-            fu.create_block()
+        elif abs(x11 - apple.x) <= SEG_SIZE and abs(y11 - apple.y) <= SEG_SIZE:
+            s.add_segment(c)
+            apple.delete_block()
+            apple = cl.Block(SEG_SIZE, c)
             Score += 1
         # Self-eating
         else:
@@ -46,7 +44,7 @@ def main(IN_GAME, Score, c):
                 if s_head_coords == c.coords(s.segments[index].instance):
                     IN_GAME = False
                     pass
-        root.after(100, main, IN_GAME, Score, c)
+        root.after(100, main, IN_GAME, Score, c, apple)
         # Not IN_GAME -> stop game and print message
     else:
         return c.create_text(WIDTH / 2, HEIGHT / 2,
@@ -56,14 +54,14 @@ def main(IN_GAME, Score, c):
 
 
 ##############################################################################
-
 # Setting up window
+##############################################################################
 root = Tk()
 root.title("Catch the Ribosome!")
 # Making menu string
 mainmenu = Menu(root)
 root.config(menu=mainmenu)
-# Пропишем рамку
+# Creating frame
 frame = Frame(root, bg='pink', bd=5)
 root.config(menu=mainmenu)
 mainmenu.add_command(label="New game", command=fu.new_game)
@@ -76,7 +74,7 @@ Button(root, text="Score {}".format(Score), command=fu.score).grid(ipadx=100, ip
 
 
 
-# Drawind canvas
+# Drawing canvas
 c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
 c.grid()
 # catch keypressing
@@ -96,27 +94,32 @@ e = cl.Enemy(enemy_segments)
 # Reaction on keypress
 c.bind("<KeyPress>", s.change_direction)
 # Creating an apple
-fu.create_block(c)
+apple = cl.Block(SEG_SIZE, c)
+apple.instance
 IN_GAME = True
-main(IN_GAME, 0, c)
+main(IN_GAME, 0, c, apple)
 root.mainloop()
 
+##########################################################################################
+# Classes MainFrame and Game
+##########################################################################################
 
 class MainFrame(Frame):
     def __init__(self, root, game):
         super().__init__()
         self._root = root
-        self.grid(row=0, column=0, sticky=(S, E, N, W))
+        self.grid(row=0, column=0, sticky=(N, E, S, W))
         self._game = game
         self._game.add_frame(self)
         self._add_menu()
         self._canvas = self._add_canvas()
 
+
     def _add_menu(self):
-        mainmenu = Menu(root)
+        mainmenu = tk.Menu(self.root)
         self._root.config(menu=mainmenu)
         # Пропишем рамку
-        frame = Frame(root, bg='pink', bd=5)
+        frame = tk.Frame(self.root, bg='pink', bd=5)
         self._root.config(menu=mainmenu)
         mainmenu.add_command(label="New game", command=fu.new_game)
         mainmenu.add_command(label="Load game", command=fu.load_game)
@@ -131,34 +134,6 @@ class MainFrame(Frame):
     def new_game(self):
         answer = mb.askyesno(title="Question", message="Start new game?")
         if answer == True:
-
-            # self._game.restart()
-            # self._canvas.delete(BLOCK)
-            # self._game.snake.delete()
-            # self._game.delete_enemies()
-            # root = Tk()
-            # c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
-            # self._canvas.grid()
-            #
-            # # catch keypressing
-            # self._canvas.focus_set()
-            # # creating segments and snake
-            # segments = [cl.Segment(10, 300, c),
-            #             cl.Segment(30, 300, c),
-            #             cl.Segment(50, 300, c),
-            #             cl.Segment(70, 300, c),
-            #             cl.Segment(90, 300, c)]
-            #
-            # enemy_segments = [cl.Enemy_segment(700, 400, c),
-            #                   cl.Enemy_segment(720, 400, c),
-            #                   cl.Enemy_segment(740, 400, c)]
-            # s = cl.Snake(segments)
-            # e = cl.Enemy(enemy_segments)
-            #
-            # # Reaction on keypress
-            # self._canvas.bind("<KeyPress>", self._game.snake.change_direction)
-            #
-            # fu.create_block(c)
             IN_GAME = True
             main(IN_GAME, 0, c)
             root.mainloop()
@@ -175,12 +150,14 @@ class MainFrame(Frame):
 
 
 
+######################################################################################
 
 class Game:
     def __init__(self, num_enemies):
         self.snake = cl.Snake()
         self.enemies = [cl.Enemy() for _ in range(num_enemies)]
         self.score = 0
+        self.block = block
 
     def start(self):
         self._move()
@@ -188,3 +165,20 @@ class Game:
         if resume:
             main()
             root.mainloop()
+
+    def _is_game_over(self, snake, enemy):
+        x1, y1, x2, y2 = snake.coords
+        if x2 > WIDTH or x1 < 0 or y1 < 0 or y2 > HEIGHT:
+            self._game_over()
+        # Check for collision with enemy
+        elif fu.distance(s, e, c) < SEG_SIZE:
+            # тут сразу и жизнь режется
+            snake.delete_seg()
+            enemy.add_enemy_segment()
+        elif snake.life == 0:
+            self._game_over()
+        # Self-eating
+        else:
+            for index in range(len(s.segments) - 1):
+                if snake.coords[0] == c.coords(s.segments[index].instance):
+                    self._game_over()
