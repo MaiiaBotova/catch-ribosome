@@ -12,128 +12,160 @@ HEIGHT = 500
 SEG_SIZE = 20
 Score = 0
 ##############################################################
-def second_lvl(Score):
+
+def next():
+    c.destroy()
+    second_lvl(Score, root)
+
+def second_lvl(Score, root):
     c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
-    # c.place(relx=-5, rely=-1, anchor=CENTER)
     c.grid(row=0, column=0, sticky=(N, E, S, W))
     # catch keypressing
     c.focus_set()
+    AminoAcidsDictionary = {'Gly': 'GGG',
+                            'Pro': 'CCC',
+                            'Asp': 'GAU',
+                            'Glu': 'GAG',
+                            'Ala': 'GCC',
+                            'Asn': 'AAU',
+                            'Gln': 'CAA',
+                            'Ser': 'UCC',
+                            'Thr': 'ACA',
+                            'Lys': 'AAA',
+                            'Arg': 'AGG',
+                            'His': 'CAC',
+                            'Val': 'GUC',
+                            'Ile': 'AUU',
+                            'Met': 'AUG',
+                            'Cys': 'UGC',
+                            'Leu': 'CUU',
+                            'Phe': 'UUU',
+                            'Tyr': 'UAU',
+                            'Trp': 'UGG'}
+    X = 0
+    Y = 0
+    for acid in AminoAcidsDictionary.keys():
+        Button(root, text="{}".format(acid), command=fu.score).grid(row=X, column=Y, sticky=N+W+E+S, padx=50)
+        if Y == 5:
+            X+=1
+        Y +=1
 
 
 ##############################################################
 
 
-# def main(IN_GAME, Score, c, apple):
-#     """ Handles game process """
-#     if IN_GAME:
-#         s.move(c)
-#         e.move(c)
-#         e2.move(c)
-#         e3.move(c)
-#         for segm in s.segments:
-#             print(c.coords(segm.instance))
-#         s_head_coords = c.coords(s.segments[-1].instance)
-#         x11, y11, x12, y12 = s_head_coords
-#         # Check for collision with gamefield edges
-#         if x12 > WIDTH:
-#             c.create_text(WIDTH / 2, HEIGHT / 2,
-#                              text="GOOD JOB!",
-#                              font="Arial 20",
-#                              fill="red")
-#             c.destroy()
-#             second_lvl(Score)
-#         if x11 < 0 or y11 < 0 or y12 > HEIGHT:
-#             IN_GAME = False
-#         # Check for collision with enemy
-#         elif fu.distance(s, e, c) < SEG_SIZE:
-#             # тут сразу и жизнь режется
-#             s.delete_seg(c)
-#             e.add_enemy_segment(c)
-#         elif fu.distance(s, e2, c) < SEG_SIZE:
-#             s.delete_seg(c)
-#             e2.add_enemy_segment(c)
-#         elif fu.distance(s, e3, c) < SEG_SIZE:
-#             s.delete_seg(c)
-#             e3.add_enemy_segment(c)
-#         # elif s.life == 0:
-#         #     IN_GAME = False
-#         # Eating apples
-#         elif abs(x11 - apple.x) <= SEG_SIZE and abs(y11 - apple.y) <= SEG_SIZE:
-#             s.add_segment(c)
-#             apple.delete_block()
-#             apple = cl.Block(SEG_SIZE, c)
-#             Score += 1
-#             # context = c.getContext('2d')
-#             # context.getContext("2d").clearRect(100, 50, 10, 10)
-#             c.create_text(100, 50, anchor=N, font="Purisa",
-#                           text="Score {}".format(Score))
-#         # Self-eating
-#         else:
-#             for index in range(len(s.segments) - 1):
-#                 if s_head_coords == c.coords(s.segments[index].instance):
-#                     IN_GAME = False
-#                     pass
-#         root.after(100, main, IN_GAME, Score, c, apple)
-#         # Not IN_GAME -> stop game and print message
-#     else:
-#         return c.create_text(WIDTH / 2, HEIGHT / 2,
-#                   text="GAME OVER!",
-#                   font="Arial 20",
-#                   fill="red"), Score
+def main(IN_GAME, Score, c, apple):
+    """ Handles game process """
+    if IN_GAME:
+        s.move(c)
+        e.move(c)
+        e2.move(c)
+        e3.move(c)
+        for segm in s.segments:
+            print(c.coords(segm.instance))
+        s_head_coords = c.coords(s.segments[-1].instance)
+        x11, y11, x12, y12 = s_head_coords
+        # Check for collision with gamefield edges
+        if x12 > WIDTH:
+            c.create_text(WIDTH / 2, HEIGHT / 2,
+                             text="GOOD JOB!",
+                             font="Arial 20",
+                             fill="red")
+            Next = Button(c, text="Next", command=next)
+            Next.grid(pady=100, padx=100)
+            Next.callback()
+        if x11 < 0 or y11 < 0 or y12 > HEIGHT:
+            IN_GAME = False
+        # Check for collision with enemy
+        elif fu.distance(s, e, c) < SEG_SIZE:
+            # тут сразу и жизнь режется
+            s.delete_seg(c)
+            e.add_enemy_segment(c)
+        elif fu.distance(s, e2, c) < SEG_SIZE:
+            s.delete_seg(c)
+            e2.add_enemy_segment(c)
+        elif fu.distance(s, e3, c) < SEG_SIZE:
+            s.delete_seg(c)
+            e3.add_enemy_segment(c)
+        # elif s.life == 0:
+        #     IN_GAME = False
+        # Eating apples
+        elif abs(x11 - apple.x) <= SEG_SIZE and abs(y11 - apple.y) <= SEG_SIZE:
+            s.add_segment(c)
+            apple.delete_block()
+            apple = cl.Block(SEG_SIZE, c)
+            Score += 1
+            # context = c.getContext('2d')
+            # context.getContext("2d").clearRect(100, 50, 10, 10)
+            c.create_text(100, 50, anchor=N, font="Purisa",
+                          text="Score {}".format(Score))
+        # Self-eating
+        else:
+            for index in range(len(s.segments) - 1):
+                if s_head_coords == c.coords(s.segments[index].instance):
+                    IN_GAME = False
+                    pass
+        root.after(100, main, IN_GAME, Score, c, apple)
+        # Not IN_GAME -> stop game and print message
+    else:
+        c.create_text(WIDTH / 2, HEIGHT / 2,
+              text="GAME OVER!",
+              font="Arial 20",
+              fill="red"), Score
 
 
 ##############################################################################
 # Setting up window
 ##############################################################################
-# root = Tk()
-# root.title("Catch the Ribosome!")
-# # Creating frame
-# frame = Frame(root, bg='pink', bd=5)
-# # Making menu string
-# mainmenu = Menu(root)
-# root.config(menu=mainmenu)
-# mainmenu.add_command(label="New game", command=fu.new_game)
-# mainmenu.add_command(label="Load game", command=fu.load_game)
-# mainmenu.add_command(label="Save", command=fu.save)
-# mainmenu.add_command(label="Exit", command=root.quit)
-# Button(root, text="Score {}".format(Score), command=fu.score).grid(ipadx=100, ipady=20)
+root = Tk()
+root.title("Catch the Ribosome!")
+# Creating frame
+frame = Frame(root, bg='pink', bd=5)
+# Making menu string
+mainmenu = Menu(root)
+root.config(menu=mainmenu)
+mainmenu.add_command(label="New game", command=fu.new_game)
+mainmenu.add_command(label="Load game", command=fu.load_game)
+mainmenu.add_command(label="Save", command=fu.save)
+mainmenu.add_command(label="Exit", command=root.quit)
+Button(root, text="Score {}", command=fu.score).grid(ipadx=100, ipady=20)
 
 ####################################################################
 
 # Drawing canvas
-# c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
-# # c.place(relx=-5, rely=-1, anchor=CENTER)
-# c.grid(row=0, column = 0,  sticky=(N, E, S, W))
-# # catch keypressing
-# c.focus_set()
-# # creating segments and snake
-# segments = [cl.Segment(0, 300, c),
-#                 cl.Segment(20, 300, c),
-#                 cl.Segment(40, 300, c),
-#                 cl.Segment(60, 300, c),
-#                 cl.Segment(80, 300, c)]
-#
-# enemy_segments = [cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
-#                   cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
-#                   cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c)]
-# s = cl.Snake(segments)
-# e = cl.Enemy(enemy_segments)
-# e2 = cl.Enemy([cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
-#                   cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
-#                   cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c)])
-# e3 = cl.Enemy([cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
-#                   cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
-#                   cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c)])
-# # Reaction on keypress
-# c.bind("<KeyPress>", s.change_direction)
-# # Creating an apple
-# apple = cl.Block(SEG_SIZE, c)
+c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
+# c.place(relx=-5, rely=-1, anchor=CENTER)
+c.grid(row=0, column = 0,  sticky=(N, E, S, W))
+# catch keypressing
+c.focus_set()
+# creating segments and snake
+segments = [cl.Segment(0, 300, c),
+                cl.Segment(20, 300, c),
+                cl.Segment(40, 300, c),
+                cl.Segment(60, 300, c),
+                cl.Segment(80, 300, c)]
+
+enemy_segments = [cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+                  cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+                  cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c)]
+s = cl.Snake(segments)
+e = cl.Enemy(enemy_segments)
+e2 = cl.Enemy([cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+                  cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+                  cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c)])
+e3 = cl.Enemy([cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+                  cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+                  cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c)])
+# Reaction on keypress
+c.bind("<KeyPress>", s.change_direction)
+# Creating an apple
+apple = cl.Block(SEG_SIZE, c)
 # apple.instance
-# IN_GAME = True
-# c.create_text(100, 50, anchor=N, font="Purisa",
-#     text="Score 0")
-# main(IN_GAME, 0, c, apple)
-# root.mainloop()
+IN_GAME = True
+c.create_text(100, 50, anchor=N, font="Purisa",
+    text="Score 0")
+main(IN_GAME, 0, c, apple)
+root.mainloop()
 
 ##########################################################################################
 # Classes MainFrame and Game
@@ -317,8 +349,8 @@ class Game:
 ########################################################################################
 # How it should be
 ########################################################################################
-root = Tk()
-num_enemies = 2
-frame = MainFrame(root)
-game = Game(frame, num_enemies)
-frame.add_game(game)
+# root = Tk()
+# num_enemies = 2
+# frame = MainFrame(root)
+# game = Game(frame, num_enemies)
+# frame.add_game(game)

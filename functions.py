@@ -40,7 +40,7 @@ def save(root):
 def score(Score):
     print('Score '.format(Score.points))
 
-def new_game(root):
+def new_game():
     pass
 
 # def new_game(c, s, e, main, apple):
