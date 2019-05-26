@@ -1,7 +1,10 @@
 import random
+from math import *
+from collections import OrderedDict
+
 from tkinter import *
 from tkinter import messagebox as mb
-from math import *
+
 import classes  as cl
 import functions as fu
 import frame as fr
@@ -11,97 +14,9 @@ WIDTH = 1000
 HEIGHT = 500
 SEG_SIZE = 20
 Score = 0
-##############################################################
-class SecondLevel:
-    def __init__(self, seq, var=()):
-        self.var = list(var)
-        self.seq = seq
 
-    def add_amino_acid(self):
-        global Score
-        trio, acid = self.var
-        if AminoAcidsDictionary[triplet] == acid:
-            Score += 1
-        else:
-            c.create_text(100, 50, anchor=N, font="Purisa",
-                          text="Wrong! Try another one")
-            Score -= 1
-        c.create_rectangle(100, 50, 120, 100, outline=None, fill="peach puff")
-        c.create_text(100, 50, anchor=N, font="Purisa",
-                      text="Score {}".format(Score))
-        c.create_rectangle(x1, y1, x2, y2,
-                           outline="peach puff", fill=None)
-        c.create_rectangle(x1 + 30, y1, x2 + 30, y2,
-                           outline="#05f", fill=None)
-        x1 += 30
-        x2 += 30
-        seg = seg[3:]
-
-    def gly(self):
-        print("gly method!")
-        self.var = ['GGG', 'Gly']
-        self.add_amino_acid()
-
-    def pro(self):
-        self.var = ['CCC', 'Pro']
-
-    def asp(self):
-        self.var = ['GAU', 'Asp']
-
-    def glu(self):
-        self.var = ['GAG', 'Glu']
-
-    def ala(self):
-        self.var = ['GCC', 'Ala']
-
-    def asn(self):
-        self.var = ['AAU', 'Asn']
-
-    def gln(self):
-        self.var = ['CAA', 'Gln']
-
-    def ser(self):
-        self.var = ['UCC', 'Ser']
-
-    def thr(self):
-        self.var = ['ACA', 'Thr']
-
-    def lys(self):
-        self.var = ['AAA', 'Lys']
-
-    def arg(self):
-        self.var = ['AGG', 'Arg']
-
-    def his(self):
-        self.var = ['CAC', 'His']
-
-    def val(self):
-        self.var = ['GUC', 'Val']
-
-    def ile(self):
-        self.var = ['AUU', 'Ile']
-
-    def met(self):
-        self.var = ['AUG', 'Met']
-
-    def cys(self):
-        self.var = ['UGC', 'Cys']
-
-    def leu(self):
-        self.var = ['CUU', 'Leu']
-
-    def phe(self):
-        self.var = ['UUU', 'Phe']
-
-    def tyr(self):
-        self.var = ['UAU', 'Tyr']
-
-    def trp(self):
-        self.var = ['UGG', 'Trp']
-
-
-
-AminoAcidsDictionary = {'Gly': 'GGG',
+AminoAcidsDictionary = OrderedDict(
+    {'Gly': 'GGG',
                             'Pro': 'CCC',
                             'Asp': 'GAU',
                             'Glu': 'GAG',
@@ -121,6 +36,151 @@ AminoAcidsDictionary = {'Gly': 'GGG',
                             'Phe': 'UUU',
                             'Tyr': 'UAU',
                             'Trp': 'UGG'}
+)
+##############################################################
+class SecondLevel:
+    def __init__(self, Score, root):
+        self.Score = Score
+        self._root = root
+        self._sequence = self._generate_sequence()
+        self._canvas = self._draw_canvas()
+        self._buttons = self._add_buttons()
+
+        self._rectangle = [250, 100, 400, 120]
+        self._create_triplet_rectangle("#05f")
+
+
+    @staticmethod
+    def _generate_sequence():
+        L = list(AminoAcidsDictionary[k] for k in AminoAcidsDictionary.keys())
+        sequence = [random.choice(L) for _ in range(10)]
+        sequence = 'AUG ' + ' '.join(sequence)
+        return sequence
+
+    def _update_triplet_rectangle(self):
+        self._create_triplet_rectangle("peach puff")
+        self._rectangle[0] += 30
+        self._rectangle[2] += 30
+        self._create_triplet_rectangle("#05f")
+
+    def _create_triplet_rectangle(self, outline):
+        self._canvas.create_rectangle(*self._rectangle,
+                           outline=outline, fill=None)
+
+    def _draw_canvas(self):
+        c = Canvas(self._root, width=WIDTH, height=HEIGHT, bg="peach puff")
+        c.grid(row=0, column=5, rowspan=5, columnspan=5, sticky=N + E + S + W)
+        c.create_text(100, 50, anchor=N, font="Purisa",
+                      text="Score {}".format(Score))
+        x1 = 250
+        y1 = 100
+        x2 = 400
+        y2 = 120
+        c.create_rectangle(x1, y1, x2, y2,
+                           outline="#05f", fill=None)
+        c.create_text(500, 100, anchor=N, font="Purisa",
+                      text="{}".format(self._sequence))
+        return c
+    #
+    # def _add_amino_acids_commands(self):
+    tmpl = """def {0}(self):
+        pair = ['{1}', '{0}']
+        self._add_amino_acid(pair)"""
+    for amino_acid, triplet in AminoAcidsDictionary.items():
+        func_def = tmpl.format(amino_acid, triplet)
+        exec(func_def)
+
+    @staticmethod
+    def _add_button(row, col, name, command):
+        b = Button(root, text=name, command=command)
+        b.grid(row=row, column=col, sticky=S)
+        return b
+
+    def _add_buttons(self):
+        buttons = []
+        for i, amino_acid in enumerate(AminoAcidsDictionary):
+            row = i // 5
+            col = i % 5
+            command = getattr(self, amino_acid)
+            buttons.append(
+                self._add_button(row, col, amino_acid, command)
+            )
+        return buttons
+
+    def _add_amino_acid(self, pair):
+        global Score
+        triplet = self._sequence[:3]
+        triplet_user_selected, acid = pair
+        if AminoAcidsDictionary[acid] == triplet:
+            Score += 1
+        else:
+            self._canvas.create_text(100, 50, anchor=N, font="Purisa",
+                          text="Wrong! Try another one")
+            Score -= 1
+        self._update_triplet_rectangle()
+        self._sequence = self._sequence[3:]
+
+    # def gly(self):
+    #     print("gly method!")
+    #     self.var = ['GGG', 'Gly']
+    #     self.add_amino_acid()
+    #
+    # def pro(self):
+    #     self.var = ['CCC', 'Pro']
+    #
+    # def asp(self):
+    #     self.var = ['GAU', 'Asp']
+    #
+    # def glu(self):
+    #     self.var = ['GAG', 'Glu']
+    #
+    # def ala(self):
+    #     self.var = ['GCC', 'Ala']
+    #
+    # def asn(self):
+    #     self.var = ['AAU', 'Asn']
+    #
+    # def gln(self):
+    #     self.var = ['CAA', 'Gln']
+    #
+    # def ser(self):
+    #     self.var = ['UCC', 'Ser']
+    #
+    # def thr(self):
+    #     self.var = ['ACA', 'Thr']
+    #
+    # def lys(self):
+    #     self.var = ['AAA', 'Lys']
+    #
+    # def arg(self):
+    #     self.var = ['AGG', 'Arg']
+    #
+    # def his(self):
+    #     self.var = ['CAC', 'His']
+    #
+    # def val(self):
+    #     self.var = ['GUC', 'Val']
+    #
+    # def ile(self):
+    #     self.var = ['AUU', 'Ile']
+    #
+    # def met(self):
+    #     self.var = ['AUG', 'Met']
+    #
+    # def cys(self):
+    #     self.var = ['UGC', 'Cys']
+    #
+    # def leu(self):
+    #     self.var = ['CUU', 'Leu']
+    #
+    # def phe(self):
+    #     self.var = ['UUU', 'Phe']
+    #
+    # def tyr(self):
+    #     self.var = ['UAU', 'Tyr']
+    #
+    # def trp(self):
+    #     self.var = ['UGG', 'Trp']
 
 
 def second_lvl(Score, root):
@@ -212,7 +272,9 @@ def second_lvl(Score, root):
 
 def next():
     c.destroy()
-    second_lvl(Score, root)
+    sl = SecondLevel(Score, root)
+
+    # second_lvl(Score, root)
 ##############################################################
 
 
