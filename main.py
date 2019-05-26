@@ -12,28 +12,96 @@ HEIGHT = 500
 SEG_SIZE = 20
 Score = 0
 ##############################################################
+class SecondLevel:
+    def __init__(self, seq, var=()):
+        self.var = list(var)
+        self.seq = seq
 
-def next():
-    c.destroy()
-    second_lvl(Score, root)
+    def add_amino_acid(self):
+        global Score
+        trio, acid = self.var
+        if AminoAcidsDictionary[triplet] == acid:
+            Score += 1
+        else:
+            c.create_text(100, 50, anchor=N, font="Purisa",
+                          text="Wrong! Try another one")
+            Score -= 1
+        c.create_rectangle(100, 50, 120, 100, outline=None, fill="peach puff")
+        c.create_text(100, 50, anchor=N, font="Purisa",
+                      text="Score {}".format(Score))
+        c.create_rectangle(x1, y1, x2, y2,
+                           outline="peach puff", fill=None)
+        c.create_rectangle(x1 + 30, y1, x2 + 30, y2,
+                           outline="#05f", fill=None)
+        x1 += 30
+        x2 += 30
+        seg = seg[3:]
 
-def second_lvl(Score, root):
-    global RES
-    RES = []
-    c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
-    c.grid(row=0, column=5, rowspan=5, columnspan=5, sticky=N+E+S+W)
-    c.create_text(100, 50, anchor=N, font="Purisa",
-                  text="Score {}".format(Score))
-    # catch keypressing
-    c.focus_set()
-    sequence = [random.choice(['A','U','C','G']) for _ in range(12)]
-    sequence = 'A U G ' + ' '.join(sequence)
-    seq = sequence
-    c.create_rectangle(350, 100, 410, 120,
-                            outline="#05f", fill=None)
-    c.create_text(500, 100, anchor=N, font="Purisa",
-                  text="{}".format(seq))
-    AminoAcidsDictionary = {'Gly': 'GGG',
+    def gly(self):
+        print("gly method!")
+        self.var = ['GGG', 'Gly']
+        self.add_amino_acid()
+
+    def pro(self):
+        self.var = ['CCC', 'Pro']
+
+    def asp(self):
+        self.var = ['GAU', 'Asp']
+
+    def glu(self):
+        self.var = ['GAG', 'Glu']
+
+    def ala(self):
+        self.var = ['GCC', 'Ala']
+
+    def asn(self):
+        self.var = ['AAU', 'Asn']
+
+    def gln(self):
+        self.var = ['CAA', 'Gln']
+
+    def ser(self):
+        self.var = ['UCC', 'Ser']
+
+    def thr(self):
+        self.var = ['ACA', 'Thr']
+
+    def lys(self):
+        self.var = ['AAA', 'Lys']
+
+    def arg(self):
+        self.var = ['AGG', 'Arg']
+
+    def his(self):
+        self.var = ['CAC', 'His']
+
+    def val(self):
+        self.var = ['GUC', 'Val']
+
+    def ile(self):
+        self.var = ['AUU', 'Ile']
+
+    def met(self):
+        self.var = ['AUG', 'Met']
+
+    def cys(self):
+        self.var = ['UGC', 'Cys']
+
+    def leu(self):
+        self.var = ['CUU', 'Leu']
+
+    def phe(self):
+        self.var = ['UUU', 'Phe']
+
+    def tyr(self):
+        self.var = ['UAU', 'Tyr']
+
+    def trp(self):
+        self.var = ['UGG', 'Trp']
+
+
+
+AminoAcidsDictionary = {'Gly': 'GGG',
                             'Pro': 'CCC',
                             'Asp': 'GAU',
                             'Glu': 'GAG',
@@ -53,201 +121,176 @@ def second_lvl(Score, root):
                             'Phe': 'UUU',
                             'Tyr': 'UAU',
                             'Trp': 'UGG'}
-    def gly():
-        RES = ['GGG', 'Gly']
-    Gly = Button(root, text="Gly", command=gly)
+
+
+def second_lvl(Score, root):
+    c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
+    c.grid(row=0, column=5, rowspan=5, columnspan=5, sticky=N+E+S+W)
+    c.create_text(100, 50, anchor=N, font="Purisa",
+                  text="Score {}".format(Score))
+
+    x1 = 250
+    y1 = 100
+    x2 = 400
+    y2 = 120
+    L = list(AminoAcidsDictionary[k] for k in AminoAcidsDictionary.keys())
+    sequence = [random.choice(L) for _ in range(10)]
+    sequence = 'AUG ' + ' '.join(sequence)
+    seq = sequence
+    res = SecondLevel(seq)
+    c.create_rectangle(x1, y1, x2, y2,
+                            outline="#05f", fill=None)
+    c.create_text(500, 100, anchor=N, font="Purisa",
+                  text="{}".format(seq))
+
+    Gly = Button(root, text="Gly", command=res.gly)
     Gly.grid(row=0, column=0, sticky=S)
-
-    def pro():
-        RES = ['CCC', 'Pro']
-    Pro = Button(root, text="Pro", command=pro)
+    Pro = Button(root, text="Pro", command=res.pro)
     Pro.grid(row=0, column=1, sticky=S)
-
-    def asp():
-        RES = ['GAU', 'Aps']
-    Asp = Button(root, text="Asp", command=asp)
+    Asp = Button(root, text="Asp", command=res.asp)
     Asp.grid(row=0, column=2, sticky=S)
-
-    def glu():
-        RES = ['GAG', 'Glu']
-    Glu = Button(root, text="Glu", command=glu)
+    Glu = Button(root, text="Glu", command=res.glu)
     Glu.grid(row=0, column=3, sticky=S)
-
-    def ala():
-        RES = ['GCC', 'Ala']
-    Ala = Button(root, text="Ala", command=ala)
+    Ala = Button(root, text="Ala", command=res.ala)
     Ala.grid(row=0, column=4, sticky=S)
-
-    def asn():
-        RES = ['AAU', 'Asn']
-    Asn = Button(root, text="Asn", command=asn)
+    Asn = Button(root, text="Asn", command=res.asn)
     Asn.grid(row=1, column=0, sticky=S)
-
-    def gln():
-        RES = ['CAA', 'Gln']
-    Gln = Button(root, text="Gln", command=gln)
+    Gln = Button(root, text="Gln", command=res.gln)
     Gln.grid(row=1, column=1, sticky=S)
-
-    def ser():
-        RES = ['UCC', 'Ser']
-    Ser = Button(root, text="Ser", command=ser)
+    Ser = Button(root, text="Ser", command=res.ser)
     Ser.grid(row=1, column=2, sticky=S)
-
-    def thr():
-        RES = ['ACA', 'Thr']
-    Thr = Button(root, text="Thr", command=thr)
+    Thr = Button(root, text="Thr", command=res.thr)
     Thr.grid(row=1, column=3, sticky=S)
-
-    def lys():
-        RES = ['AAA', 'Lys']
-    Lys = Button(root, text="Lys", command=lys)
+    Lys = Button(root, text="Lys", command=res.lys)
     Lys.grid(row=1, column=4, sticky=S)
-
-    def arg():
-        RES = ['AGG', 'Arg']
-    Arg = Button(root, text="Arg", command=arg)
+    Arg = Button(root, text="Arg", command=res.arg)
     Arg.grid(row=2, column=0, sticky=S)
-
-    def his():
-        RES = ['CAC', 'His']
-    His = Button(root, text="His", command=his)
+    His = Button(root, text="His", command=res.his)
     His.grid(row=2, column=1, sticky=S)
-
-    def val():
-        RES = ['GUC', 'Val']
-    Val = Button(root, text="Val", command=val)
+    Val = Button(root, text="Val", command=res.val)
     Val.grid(row=2, column=2, sticky=S)
-
-    def ile():
-        RES = ['AUU', 'Ile']
-    Ile = Button(root, text="Ile", command=ile)
+    Ile = Button(root, text="Ile", command=res.ile)
     Ile.grid(row=2, column=3, sticky=S)
-
-    def met():
-        RES = ['AUG', 'Met']
-    Met = Button(root, text="Met", command=met)
+    Met = Button(root, text="Met", command=res.met)
     Met.grid(row=2, column=4, sticky=S)
-
-    def cys():
-        RES = ['UGC', 'Cys']
-    Cys = Button(root, text="Cys", command=cys)
+    Cys = Button(root, text="Cys", command=res.cys)
     Cys.grid(row=3, column=0, sticky=S)
-
-    def leu():
-        RES = ['CUU', 'Leu']
-    Leu = Button(root, text="Leu", command=leu)
+    Leu = Button(root, text="Leu", command=res.leu)
     Leu.grid(row=3, column=1, sticky=S)
-
-    def phe():
-        RES = ['UUU', 'Phe']
-    Phe = Button(root, text="Phe", command=phe)
+    Phe = Button(root, text="Phe", command=res.phe)
     Phe.grid(row=3, column=2, sticky=S)
-
-    def tyr():
-        RES = ['UAU', 'Tyr']
-    Tyr = Button(root, text="Tyr", command=tyr)
+    Tyr = Button(root, text="Tyr", command=res.tyr)
     Tyr.grid(row=3, column=3, sticky=S)
-
-    def trp():
-        RES = ['UGG', 'Trp']
-    Trp = Button(root, text="Trp", command=trp)
+    Trp = Button(root, text="Trp", command=res.trp)
     Trp.grid(row=3, column=4, sticky=S)
-
     # Check sequence
-    if len(RES) > 0:
-        x1 = 350
-        y1 = 100
-        x2 = 410
-        y2 = 120
-        while len(seq) != 0:
-            seq = ''.join(seq.split())
-            triplet = seq[:3]
-            if RES[0] == triplet:
-                Score += 1
-            else:
+    seq = ''.join(seq.split())
+    while len(seq) > 0:
+        triplet = seq[:3]
+        while True:
+            if res.var:
+                trio, acid = res.var
+                if AminoAcidsDictionary[triplet] == acid:
+                    Score += 1
+                else:
+                    c.create_text(100, 50, anchor=N, font="Purisa",
+                                  text="Wrong! Try another one")
+                    Score -= 1
+                c.create_rectangle(100, 50, 120, 100, outline=None, fill="peach puff")
                 c.create_text(100, 50, anchor=N, font="Purisa",
-                              text="Wrong! Try another one")
-                Score -= 1
-            c.create_rectangle(100, 50, 120, 100, outline=None, fill="peach puff")
-            c.create_text(100, 50, anchor=N, font="Purisa",
-                              text="Score {}".format(Score))
-            c.create_rectangle(x1, y1, x2, y2,
-                               outline="peach puff", fill=None)
-            c.create_rectangle(x1+30, y1, x2+30, y2,
-                               outline="#05f", fill=None)
-            x1 += 30
-            x2 += 30
-            seg = seg[3:]
+                                  text="Score {}".format(Score))
+                c.create_rectangle(x1, y1, x2, y2,
+                                   outline="peach puff", fill=None)
+                c.create_rectangle(x1+30, y1, x2+30, y2,
+                                   outline="#05f", fill=None)
+                x1 += 30
+                x2 += 30
+                seg = seg[3:]
 
 
 
 
-
+def next():
+    c.destroy()
+    second_lvl(Score, root)
 ##############################################################
 
 
-def main(IN_GAME, Score, c, apple):
+def main(IN_GAME, first_stage, Score, c, apple):
     """ Handles game process """
     if IN_GAME:
-        s.move(c)
-        e.move(c)
-        e2.move(c)
-        e3.move(c)
-        for segm in s.segments:
-            print(c.coords(segm.instance))
-        s_head_coords = c.coords(s.segments[-1].instance)
-        x11, y11, x12, y12 = s_head_coords
-        # Check for collision with gamefield edges
-        if x12 > WIDTH:
+        if first_stage:
+            s.move(c)
+            e.move(c)
+            e2.move(c)
+            e3.move(c)
+            for segm in s.segments:
+                print(c.coords(segm.instance))
+            s_head_coords = c.coords(s.segments[-1].instance)
+            x11, y11, x12, y12 = s_head_coords
+            # Check for collision with gamefield edges
+            if x12 > WIDTH:
+                first_stage = False
+                # Next.next()
+                pass
+                # second_lvl(Score, root)
+            elif x11 < 0 or y11 < 0 or y12 > HEIGHT:
+                IN_GAME = False
+                c.create_text(WIDTH / 2, HEIGHT / 2,
+                              text="GAME OVER!",
+                              font="Arial 20",
+                              fill="red")
+                pass
+            # Check for collision with enemy
+            elif fu.distance(s, e, c) < SEG_SIZE:
+                # тут сразу и жизнь режется
+                s.delete_seg(c)
+                e.add_enemy_segment(c)
+            elif fu.distance(s, e2, c) < SEG_SIZE:
+                s.delete_seg(c)
+                e2.add_enemy_segment(c)
+            elif fu.distance(s, e3, c) < SEG_SIZE:
+                s.delete_seg(c)
+                e3.add_enemy_segment(c)
+            # elif s.life == 0:
+            #     IN_GAME = False
+            # Eating apples
+            elif abs(x11 - apple.x) <= SEG_SIZE and abs(y11 - apple.y) <= SEG_SIZE:
+                s.add_segment(c)
+                apple.delete_block()
+                apple = cl.Block(SEG_SIZE, c)
+                Score += 1
+                # context = c.getContext('2d')
+                # context.getContext("2d").clearRect(100, 50, 10, 10)
+                c.create_rectangle(125, 50, 150, 100, outline=None,  fill="peach puff")
+                c.create_text(100, 50, anchor=N, font="Purisa",
+                              text="Score {}".format(Score))
+            # Self-eating
+            else:
+                for index in range(len(s.segments) - 1):
+                    if s_head_coords == c.coords(s.segments[index].instance):
+                        IN_GAME = False
+                        c.create_text(WIDTH / 2, HEIGHT / 2,
+                                      text="GAME OVER!",
+                                      font="Arial 20",
+                                      fill="red"), Score
+                        pass
+            root.after(100, main, IN_GAME, first_stage, Score, c, apple)
+        # Not IN_GAME -> stop game and print message
+        else:
             c.create_text(WIDTH / 2, HEIGHT / 2,
-                             text="GOOD JOB!",
-                             font="Arial 20",
-                             fill="red")
+                          text="GOOD JOB!",
+                          font="Arial 20",
+                          fill="red")
             Next = Button(c, text="Next", command=next)
             Next.grid(pady=100, padx=100)
-            # Next.next()
-            pass
-            # second_lvl(Score, root)
-        if x11 < 0 or y11 < 0 or y12 > HEIGHT:
-            IN_GAME = False
-            pass
-        # Check for collision with enemy
-        elif fu.distance(s, e, c) < SEG_SIZE:
-            # тут сразу и жизнь режется
-            s.delete_seg(c)
-            e.add_enemy_segment(c)
-        elif fu.distance(s, e2, c) < SEG_SIZE:
-            s.delete_seg(c)
-            e2.add_enemy_segment(c)
-        elif fu.distance(s, e3, c) < SEG_SIZE:
-            s.delete_seg(c)
-            e3.add_enemy_segment(c)
-        # elif s.life == 0:
-        #     IN_GAME = False
-        # Eating apples
-        elif abs(x11 - apple.x) <= SEG_SIZE and abs(y11 - apple.y) <= SEG_SIZE:
-            s.add_segment(c)
-            apple.delete_block()
-            apple = cl.Block(SEG_SIZE, c)
-            Score += 1
-            # context = c.getContext('2d')
-            # context.getContext("2d").clearRect(100, 50, 10, 10)
-            c.create_rectangle(125, 50, 150, 100, outline=None,  fill="peach puff")
-            c.create_text(100, 50, anchor=N, font="Purisa",
-                          text="Score {}".format(Score))
-        # Self-eating
-        else:
-            for index in range(len(s.segments) - 1):
-                if s_head_coords == c.coords(s.segments[index].instance):
-                    IN_GAME = False
-                    pass
-        root.after(100, main, IN_GAME, Score, c, apple)
-        # Not IN_GAME -> stop game and print message
+            return Score
     else:
         c.create_text(WIDTH / 2, HEIGHT / 2,
               text="GAME OVER!",
               font="Arial 20",
-              fill="red"), Score
+              fill="red")
+
 
 
 ##############################################################################
@@ -299,8 +342,8 @@ apple = cl.Block(SEG_SIZE, c)
 # apple.instance
 IN_GAME = True
 c.create_text(100, 50, anchor=N, font="Purisa",
-    text="Score 0")
-main(IN_GAME, 0, c, apple)
+    text="Score {}".format(Score))
+main(IN_GAME, True, Score, c, apple)
 root.mainloop()
 
 ##########################################################################################
