@@ -168,19 +168,16 @@ def second_lvl(Score, root):
                 c.create_text(100, 50, anchor=N, font="Purisa",
                               text="Wrong! Try another one")
                 Score -= 1
-            c.create_rectangle(100, 50, 120, 100, fill="peach puff")
+            c.create_rectangle(100, 50, 120, 100, outline=None, fill="peach puff")
             c.create_text(100, 50, anchor=N, font="Purisa",
                               text="Score {}".format(Score))
             c.create_rectangle(x1, y1, x2, y2,
                                outline="peach puff", fill=None)
             c.create_rectangle(x1+30, y1, x2+30, y2,
-                               outline="peach puff", fill=None)
+                               outline="#05f", fill=None)
             x1 += 30
             x2 += 30
-
-
-
-
+            seg = seg[3:]
 
 
 
@@ -206,11 +203,11 @@ def main(IN_GAME, Score, c, apple):
                              text="GOOD JOB!",
                              font="Arial 20",
                              fill="red")
-
             Next = Button(c, text="Next", command=next)
             Next.grid(pady=100, padx=100)
-            # Next.callback()
-            second_lvl(Score, root)
+            # Next.next()
+            pass
+            # second_lvl(Score, root)
         if x11 < 0 or y11 < 0 or y12 > HEIGHT:
             IN_GAME = False
             pass
@@ -235,7 +232,7 @@ def main(IN_GAME, Score, c, apple):
             Score += 1
             # context = c.getContext('2d')
             # context.getContext("2d").clearRect(100, 50, 10, 10)
-            c.create_rectangle(125, 50, 150, 100, outline=None, fill="peach puff")
+            c.create_rectangle(125, 50, 150, 100, outline=None,  fill="peach puff")
             c.create_text(100, 50, anchor=N, font="Purisa",
                           text="Score {}".format(Score))
         # Self-eating
