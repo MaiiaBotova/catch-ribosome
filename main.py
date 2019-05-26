@@ -7,7 +7,7 @@ from tkinter import messagebox as mb
 
 import classes  as cl
 import functions as fu
-import frame as fr
+
 
 # Globals
 WIDTH = 1000
@@ -46,8 +46,9 @@ class SecondLevel:
         self._canvas = self._draw_canvas()
         self._buttons = self._add_buttons()
 
-        self._rectangle = [250, 100, 400, 120]
+        self._rectangle = [235, 100, 278, 120]
         self._create_triplet_rectangle("#05f")
+
 
 
     @staticmethod
@@ -59,8 +60,8 @@ class SecondLevel:
 
     def _update_triplet_rectangle(self):
         self._create_triplet_rectangle("peach puff")
-        self._rectangle[0] += 30
-        self._rectangle[2] += 30
+        self._rectangle[0] += 48
+        self._rectangle[2] += 48
         self._create_triplet_rectangle("#05f")
 
     def _create_triplet_rectangle(self, outline):
@@ -72,9 +73,9 @@ class SecondLevel:
         c.grid(row=0, column=5, rowspan=5, columnspan=5, sticky=N + E + S + W)
         c.create_text(100, 50, anchor=N, font="Purisa",
                       text="Score {}".format(Score))
-        x1 = 250
+        x1 = 235
         y1 = 100
-        x2 = 400
+        x2 = 278
         y2 = 120
         c.create_rectangle(x1, y1, x2, y2,
                            outline="#05f", fill=None)
@@ -84,7 +85,7 @@ class SecondLevel:
     #
     # def _add_amino_acids_commands(self):
     tmpl = """def {0}(self):
-        pair = ['{1}', '{0}']
+        pair = ['{0}', '{1}']
         self._add_amino_acid(pair)"""
     for amino_acid, triplet in AminoAcidsDictionary.items():
         func_def = tmpl.format(amino_acid, triplet)
@@ -109,163 +110,113 @@ class SecondLevel:
 
     def _add_amino_acid(self, pair):
         global Score
-        triplet = self._sequence[:3]
-        triplet_user_selected, acid = pair
-        if AminoAcidsDictionary[acid] == triplet:
-            Score += 1
+        if self._sequence == '':
+            return self._canvas.create_text(500, 250, anchor=N, font=("Purisa", 40),
+                          text="Congratulations! You win!\nYour score is {}".format(Score))
+        elif Score == 0:
+            # gameover = PhotoImage(file="died.gif")
+            # self._canvas.create_image(20, 200, image=gameover, anchor=N)
+            self._canvas.create_text(500, 250, anchor=N, font=("Purisa", 40),
+                          text="Game over! Botay bolshe!")
         else:
+            triplet = self._sequence[:3]
+            acid, triplet_user_selected = pair
+            if triplet_user_selected == triplet:
+                Score += 1
+                self._canvas.create_oval(self._rectangle, fill='blue', outline='red', tags='{}'.format(acid))
+                self._update_triplet_rectangle()
+                self._sequence = self._sequence[4:]
+            else:
+                self._canvas.create_text(300, 50, anchor=N, font="Purisa",
+                              text="Wrong! Try another one")
+                Score -= 1
+            self._canvas.create_rectangle(25, 50, 150, 100, outline='peach puff',  fill="peach puff")
             self._canvas.create_text(100, 50, anchor=N, font="Purisa",
-                          text="Wrong! Try another one")
-            Score -= 1
-        self._update_triplet_rectangle()
-        self._sequence = self._sequence[3:]
-
-    # def gly(self):
-    #     print("gly method!")
-    #     self.var = ['GGG', 'Gly']
-    #     self.add_amino_acid()
-    #
-    # def pro(self):
-    #     self.var = ['CCC', 'Pro']
-    #
-    # def asp(self):
-    #     self.var = ['GAU', 'Asp']
-    #
-    # def glu(self):
-    #     self.var = ['GAG', 'Glu']
-    #
-    # def ala(self):
-    #     self.var = ['GCC', 'Ala']
-    #
-    # def asn(self):
-    #     self.var = ['AAU', 'Asn']
-    #
-    # def gln(self):
-    #     self.var = ['CAA', 'Gln']
-    #
-    # def ser(self):
-    #     self.var = ['UCC', 'Ser']
-    #
-    # def thr(self):
-    #     self.var = ['ACA', 'Thr']
-    #
-    # def lys(self):
-    #     self.var = ['AAA', 'Lys']
-    #
-    # def arg(self):
-    #     self.var = ['AGG', 'Arg']
-    #
-    # def his(self):
-    #     self.var = ['CAC', 'His']
-    #
-    # def val(self):
-    #     self.var = ['GUC', 'Val']
-    #
-    # def ile(self):
-    #     self.var = ['AUU', 'Ile']
-    #
-    # def met(self):
-    #     self.var = ['AUG', 'Met']
-    #
-    # def cys(self):
-    #     self.var = ['UGC', 'Cys']
-    #
-    # def leu(self):
-    #     self.var = ['CUU', 'Leu']
-    #
-    # def phe(self):
-    #     self.var = ['UUU', 'Phe']
-    #
-    # def tyr(self):
-    #     self.var = ['UAU', 'Tyr']
-    #
-    # def trp(self):
-    #     self.var = ['UGG', 'Trp']
+                          text="Score {}".format(Score))
 
 
-def second_lvl(Score, root):
-    c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
-    c.grid(row=0, column=5, rowspan=5, columnspan=5, sticky=N+E+S+W)
-    c.create_text(100, 50, anchor=N, font="Purisa",
-                  text="Score {}".format(Score))
-
-    x1 = 250
-    y1 = 100
-    x2 = 400
-    y2 = 120
-    L = list(AminoAcidsDictionary[k] for k in AminoAcidsDictionary.keys())
-    sequence = [random.choice(L) for _ in range(10)]
-    sequence = 'AUG ' + ' '.join(sequence)
-    seq = sequence
-    res = SecondLevel(seq)
-    c.create_rectangle(x1, y1, x2, y2,
-                            outline="#05f", fill=None)
-    c.create_text(500, 100, anchor=N, font="Purisa",
-                  text="{}".format(seq))
-
-    Gly = Button(root, text="Gly", command=res.gly)
-    Gly.grid(row=0, column=0, sticky=S)
-    Pro = Button(root, text="Pro", command=res.pro)
-    Pro.grid(row=0, column=1, sticky=S)
-    Asp = Button(root, text="Asp", command=res.asp)
-    Asp.grid(row=0, column=2, sticky=S)
-    Glu = Button(root, text="Glu", command=res.glu)
-    Glu.grid(row=0, column=3, sticky=S)
-    Ala = Button(root, text="Ala", command=res.ala)
-    Ala.grid(row=0, column=4, sticky=S)
-    Asn = Button(root, text="Asn", command=res.asn)
-    Asn.grid(row=1, column=0, sticky=S)
-    Gln = Button(root, text="Gln", command=res.gln)
-    Gln.grid(row=1, column=1, sticky=S)
-    Ser = Button(root, text="Ser", command=res.ser)
-    Ser.grid(row=1, column=2, sticky=S)
-    Thr = Button(root, text="Thr", command=res.thr)
-    Thr.grid(row=1, column=3, sticky=S)
-    Lys = Button(root, text="Lys", command=res.lys)
-    Lys.grid(row=1, column=4, sticky=S)
-    Arg = Button(root, text="Arg", command=res.arg)
-    Arg.grid(row=2, column=0, sticky=S)
-    His = Button(root, text="His", command=res.his)
-    His.grid(row=2, column=1, sticky=S)
-    Val = Button(root, text="Val", command=res.val)
-    Val.grid(row=2, column=2, sticky=S)
-    Ile = Button(root, text="Ile", command=res.ile)
-    Ile.grid(row=2, column=3, sticky=S)
-    Met = Button(root, text="Met", command=res.met)
-    Met.grid(row=2, column=4, sticky=S)
-    Cys = Button(root, text="Cys", command=res.cys)
-    Cys.grid(row=3, column=0, sticky=S)
-    Leu = Button(root, text="Leu", command=res.leu)
-    Leu.grid(row=3, column=1, sticky=S)
-    Phe = Button(root, text="Phe", command=res.phe)
-    Phe.grid(row=3, column=2, sticky=S)
-    Tyr = Button(root, text="Tyr", command=res.tyr)
-    Tyr.grid(row=3, column=3, sticky=S)
-    Trp = Button(root, text="Trp", command=res.trp)
-    Trp.grid(row=3, column=4, sticky=S)
-    # Check sequence
-    seq = ''.join(seq.split())
-    while len(seq) > 0:
-        triplet = seq[:3]
-        while True:
-            if res.var:
-                trio, acid = res.var
-                if AminoAcidsDictionary[triplet] == acid:
-                    Score += 1
-                else:
-                    c.create_text(100, 50, anchor=N, font="Purisa",
-                                  text="Wrong! Try another one")
-                    Score -= 1
-                c.create_rectangle(100, 50, 120, 100, outline=None, fill="peach puff")
-                c.create_text(100, 50, anchor=N, font="Purisa",
-                                  text="Score {}".format(Score))
-                c.create_rectangle(x1, y1, x2, y2,
-                                   outline="peach puff", fill=None)
-                c.create_rectangle(x1+30, y1, x2+30, y2,
-                                   outline="#05f", fill=None)
-                x1 += 30
-                x2 += 30
-                seg = seg[3:]
+# def second_lvl(Score, root):
+#     c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
+#     c.grid(row=0, column=5, rowspan=5, columnspan=5, sticky=N+E+S+W)
+#     c.create_text(100, 50, anchor=N, font="Purisa",
+#                   text="Score {}".format(Score))
+#     x1 = 240
+#     y1 = 100
+#     x2 = 300
+#     y2 = 120
+#     L = list(AminoAcidsDictionary[k] for k in AminoAcidsDictionary.keys())
+#     sequence = [random.choice(L) for _ in range(10)]
+#     sequence = 'AUG ' + ' '.join(sequence)
+#     seq = sequence
+#     res = SecondLevel(seq)
+#     c.create_rectangle(x1, y1, x2, y2,
+#                             outline="#05f", fill=None)
+#     c.create_text(500, 100, anchor=N, font="Purisa",
+#                   text="{}".format(seq))
+#
+#     Gly = Button(root, text="Gly", command=res.gly)
+#     Gly.grid(row=0, column=0, sticky=S)
+#     Pro = Button(root, text="Pro", command=res.pro)
+#     Pro.grid(row=0, column=1, sticky=S)
+#     Asp = Button(root, text="Asp", command=res.asp)
+#     Asp.grid(row=0, column=2, sticky=S)
+#     Glu = Button(root, text="Glu", command=res.glu)
+#     Glu.grid(row=0, column=3, sticky=S)
+#     Ala = Button(root, text="Ala", command=res.ala)
+#     Ala.grid(row=0, column=4, sticky=S)
+#     Asn = Button(root, text="Asn", command=res.asn)
+#     Asn.grid(row=1, column=0, sticky=S)
+#     Gln = Button(root, text="Gln", command=res.gln)
+#     Gln.grid(row=1, column=1, sticky=S)
+#     Ser = Button(root, text="Ser", command=res.ser)
+#     Ser.grid(row=1, column=2, sticky=S)
+#     Thr = Button(root, text="Thr", command=res.thr)
+#     Thr.grid(row=1, column=3, sticky=S)
+#     Lys = Button(root, text="Lys", command=res.lys)
+#     Lys.grid(row=1, column=4, sticky=S)
+#     Arg = Button(root, text="Arg", command=res.arg)
+#     Arg.grid(row=2, column=0, sticky=S)
+#     His = Button(root, text="His", command=res.his)
+#     His.grid(row=2, column=1, sticky=S)
+#     Val = Button(root, text="Val", command=res.val)
+#     Val.grid(row=2, column=2, sticky=S)
+#     Ile = Button(root, text="Ile", command=res.ile)
+#     Ile.grid(row=2, column=3, sticky=S)
+#     Met = Button(root, text="Met", command=res.met)
+#     Met.grid(row=2, column=4, sticky=S)
+#     Cys = Button(root, text="Cys", command=res.cys)
+#     Cys.grid(row=3, column=0, sticky=S)
+#     Leu = Button(root, text="Leu", command=res.leu)
+#     Leu.grid(row=3, column=1, sticky=S)
+#     Phe = Button(root, text="Phe", command=res.phe)
+#     Phe.grid(row=3, column=2, sticky=S)
+#     Tyr = Button(root, text="Tyr", command=res.tyr)
+#     Tyr.grid(row=3, column=3, sticky=S)
+#     Trp = Button(root, text="Trp", command=res.trp)
+#     Trp.grid(row=3, column=4, sticky=S)
+#     # Check sequence
+#     seq = ''.join(seq.split())
+#     while len(seq) > 0:
+#         triplet = seq[:3]
+#         while True:
+#             if res.var:
+#                 trio, acid = res.var
+#                 if AminoAcidsDictionary[triplet] == acid:
+#                     Score += 1
+#                 else:
+#                     c.create_text(100, 50, anchor=N, font="Purisa",
+#                                   text="Wrong! Try another one")
+#                     Score -= 1
+#                 c.create_rectangle(100, 50, 120, 100, outline=None, fill="peach puff")
+#                 c.create_text(100, 50, anchor=N, font="Purisa",
+#                                   text="Score {}".format(Score))
+#                 c.create_rectangle(x1, y1, x2, y2,
+#                                    outline="peach puff", fill=None)
+#                 c.create_rectangle(x1+30, y1, x2+30, y2,
+#                                    outline="#05f", fill=None)
+#                 x1 += 30
+#                 x2 += 30
+#                 seg = seg[3:]
 
 
 
@@ -273,13 +224,15 @@ def second_lvl(Score, root):
 def next():
     c.destroy()
     sl = SecondLevel(Score, root)
+    mainloop()
 
     # second_lvl(Score, root)
 ##############################################################
 
 
-def main(IN_GAME, first_stage, Score, c, apple):
+def main(IN_GAME, first_stage, c, apple):
     """ Handles game process """
+    global Score
     if IN_GAME:
         if first_stage:
             s.move(c)
@@ -324,7 +277,7 @@ def main(IN_GAME, first_stage, Score, c, apple):
                 Score += 1
                 # context = c.getContext('2d')
                 # context.getContext("2d").clearRect(100, 50, 10, 10)
-                c.create_rectangle(125, 50, 150, 100, outline=None,  fill="peach puff")
+                c.create_rectangle(125, 50, 150, 100, outline='peach puff',  fill="peach puff")
                 c.create_text(100, 50, anchor=N, font="Purisa",
                               text="Score {}".format(Score))
             # Self-eating
@@ -337,7 +290,7 @@ def main(IN_GAME, first_stage, Score, c, apple):
                                       font="Arial 20",
                                       fill="red"), Score
                         pass
-            root.after(100, main, IN_GAME, first_stage, Score, c, apple)
+            root.after(100, main, IN_GAME, first_stage, c, apple)
         # Not IN_GAME -> stop game and print message
         else:
             c.create_text(WIDTH / 2, HEIGHT / 2,
@@ -346,7 +299,6 @@ def main(IN_GAME, first_stage, Score, c, apple):
                           fill="red")
             Next = Button(c, text="Next", command=next)
             Next.grid(pady=100, padx=100)
-            return Score
     else:
         c.create_text(WIDTH / 2, HEIGHT / 2,
               text="GAME OVER!",
@@ -405,7 +357,7 @@ apple = cl.Block(SEG_SIZE, c)
 IN_GAME = True
 c.create_text(100, 50, anchor=N, font="Purisa",
     text="Score {}".format(Score))
-main(IN_GAME, True, Score, c, apple)
+main(IN_GAME, True, c, apple)
 root.mainloop()
 
 ##########################################################################################
