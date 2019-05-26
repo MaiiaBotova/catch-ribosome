@@ -19,9 +19,18 @@ def next():
 
 def second_lvl(Score, root):
     c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
-    c.grid(row=0, column=0, sticky=(N, E, S, W))
+    c.grid(row=0, column=5, rowspan=5, columnspan=5, sticky=N+E+S+W)
+    c.create_text(100, 50, anchor=N, font="Purisa",
+                  text="Score {}".format(Score))
     # catch keypressing
-    c.focus_set()
+    # c.focus_set()
+    sequence = [random.choice(['A','T','C','G']) for _ in range(12)]
+    sequence = 'A U G ' + ' '.join(sequence)
+    c.create_rectangle(350, 100, 410, 120,
+                            outline="#05f", fill=None)
+    c.create_text(500, 100, anchor=N, font="Purisa",
+                  text="{}".format(sequence))
+    c.create_rectangle()
     AminoAcidsDictionary = {'Gly': 'GGG',
                             'Pro': 'CCC',
                             'Asp': 'GAU',
@@ -42,13 +51,15 @@ def second_lvl(Score, root):
                             'Phe': 'UUU',
                             'Tyr': 'UAU',
                             'Trp': 'UGG'}
-    X = 0
-    Y = 0
-    for acid in AminoAcidsDictionary.keys():
-        Button(root, text="{}".format(acid), command=fu.score).grid(row=X, column=Y, sticky=N+W+E+S, padx=50)
-        if Y == 5:
-            X+=1
-        Y +=1
+    Gly= Button(root, text="Gly", command=check)
+    Gly.grid(row=0, column=0, sticky=S)
+    # Gly.bind('<Button-1>', check)
+
+
+
+def check(event):
+    pass
+
 
 
 ##############################################################
@@ -71,11 +82,14 @@ def main(IN_GAME, Score, c, apple):
                              text="GOOD JOB!",
                              font="Arial 20",
                              fill="red")
+
             Next = Button(c, text="Next", command=next)
             Next.grid(pady=100, padx=100)
             Next.callback()
+
         if x11 < 0 or y11 < 0 or y12 > HEIGHT:
             IN_GAME = False
+            pass
         # Check for collision with enemy
         elif fu.distance(s, e, c) < SEG_SIZE:
             # тут сразу и жизнь режется
@@ -128,7 +142,7 @@ mainmenu.add_command(label="New game", command=fu.new_game)
 mainmenu.add_command(label="Load game", command=fu.load_game)
 mainmenu.add_command(label="Save", command=fu.save)
 mainmenu.add_command(label="Exit", command=root.quit)
-Button(root, text="Score {}", command=fu.score).grid(ipadx=100, ipady=20)
+# Button(root, text="Score {}", command=fu.score).grid(ipadx=100, ipady=20)
 
 ####################################################################
 
