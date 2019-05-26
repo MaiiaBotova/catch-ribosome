@@ -25,45 +25,23 @@ def distance(s, e, c):
     return MIN
 
 
-# def main():
-#     """ Handles game process """
-#     global IN_GAME, BLOCK
-#     if IN_GAME:
-#         s.move()
-#         e.move()
-#         s_head_coords = c.coords(s.segments[-1].instance)
-#         x11, y11, x12, y12 = s_head_coords
-#         # Check for collision with gamefield edges
-#         if x12 > WIDTH or x11 < 0 or y11 < 0 or y12 > HEIGHT:
-#             IN_GAME = False
-#         # Check for collision with enemy
-#         elif distance(s, e) < SEG_SIZE:
-#             # тут сразу и жизнь режется
-#             s.delete_seg()
-#             e.add_enemy_segment()
-#         # elif s.life == 0:
-#         #     IN_GAME = False
-#         # Eating apples
-#         elif  [x11, y11, x12, y12] == c.coords(BLOCK):
-#             s.add_segment()
-#             c.delete(BLOCK)
-#             create_block()
-#             Score += 1
-#         # Self-eating
-#         else:
-#             for index in range(len(s.segments) - 1):
-#                 if s_head_coords == c.coords(s.segments[index].instance):
-#                     IN_GAME = False
-#                     pass
-#         root.after(100, main)
-#         # Not IN_GAME -> stop game and print message
-#     else:
-#         c.create_text(WIDTH / 2, HEIGHT / 2,
-#                   text="GAME OVER!",
-#                   font="Arial 20",
-#                   fill="red")
+def load_game(root):
+    filewin = Toplevel(root)
+    button = Button(filewin, text="Load game")
+    button.pack()
 
 
+def save(root):
+    filewin = Toplevel(root)
+    button = Button(filewin, text="Save progress")
+    button.pack()
+
+
+def score(Score):
+    print('Score '.format(Score.points))
+
+def new_game(root):
+    pass
 
 # def new_game(c, s, e, main, apple):
 #     answer = mb.askyesno(title="Question", message="Start new game?")

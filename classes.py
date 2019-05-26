@@ -18,7 +18,9 @@ class Block(Canvas):
         self.size = size
         self.canvas = c
         self.life = 1
-        self.instance = self.canvas.create_rectangle(self.x, self.y,
+
+        def instance(self):
+            self.canvas.create_rectangle(self.x, self.y,
                                            self.x + self.size, self.y + self.size,
                                            fill="red", outline='black')
 
@@ -37,21 +39,26 @@ class Block(Canvas):
 
 class Segment:
     """ Single snake segment """
-    def __init__(self, x, y, c):
-        self.c = c
-        self.instance = c.create_rectangle(x, y,
-                                           x + SEG_SIZE, y + SEG_SIZE,
-                                           fill="white")
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
         self.life = 1
+        # self.instance = self.c.create_rectangle(x, y,
+        #                                    x + SEG_SIZE, y + SEG_SIZE,
+        #                                    fill="white")
+
 
 
 class Enemy_segment:
     """ Single enemy segment """
-    def __init__(self, x, y, c):
-        self.instance = c.create_rectangle(x, y,
-                                           x + SEG_SIZE, y + SEG_SIZE,
-                                           fill="dark green")
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
         self.life = 1
+        # self.instance = c.create_rectangle(x, y,
+        #                                    x + SEG_SIZE, y + SEG_SIZE,
+        #                                    fill="dark green")
+
 ###############################################################################
 class Snake:
     """ Simple Snake class """
@@ -105,9 +112,9 @@ class Snake:
 ######################################################################
 class Enemy:
     """ Random enemy class """
-    def __init__(self, segments):
+    def __init__(self, segments, life = 3):
         self.segments = segments
-        self.life = 3
+        self.life = life
         # possible moves
         self.mapping = {"Down": (0, 1), "Right": (1, 0),
                         "Up": (0, -1), "Left": (-1, 0)}

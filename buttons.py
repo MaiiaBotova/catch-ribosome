@@ -5,7 +5,7 @@ from math import sqrt
 
 
 def new_game(root):
-
+    pass
 
 
 def load_game(root):
