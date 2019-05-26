@@ -18,19 +18,21 @@ def next():
     second_lvl(Score, root)
 
 def second_lvl(Score, root):
+    global RES
+    RES = []
     c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
     c.grid(row=0, column=5, rowspan=5, columnspan=5, sticky=N+E+S+W)
     c.create_text(100, 50, anchor=N, font="Purisa",
                   text="Score {}".format(Score))
     # catch keypressing
-    # c.focus_set()
-    sequence = [random.choice(['A','T','C','G']) for _ in range(12)]
+    c.focus_set()
+    sequence = [random.choice(['A','U','C','G']) for _ in range(12)]
     sequence = 'A U G ' + ' '.join(sequence)
+    seq = sequence
     c.create_rectangle(350, 100, 410, 120,
                             outline="#05f", fill=None)
     c.create_text(500, 100, anchor=N, font="Purisa",
-                  text="{}".format(sequence))
-    c.create_rectangle()
+                  text="{}".format(seq))
     AminoAcidsDictionary = {'Gly': 'GGG',
                             'Pro': 'CCC',
                             'Asp': 'GAU',
@@ -51,14 +53,136 @@ def second_lvl(Score, root):
                             'Phe': 'UUU',
                             'Tyr': 'UAU',
                             'Trp': 'UGG'}
-    Gly= Button(root, text="Gly", command=check)
+    def gly():
+        RES = ['GGG', 'Gly']
+    Gly = Button(root, text="Gly", command=gly)
     Gly.grid(row=0, column=0, sticky=S)
-    # Gly.bind('<Button-1>', check)
+
+    def pro():
+        RES = ['CCC', 'Pro']
+    Pro = Button(root, text="Pro", command=pro)
+    Pro.grid(row=0, column=1, sticky=S)
+
+    def asp():
+        RES = ['GAU', 'Aps']
+    Asp = Button(root, text="Asp", command=asp)
+    Asp.grid(row=0, column=2, sticky=S)
+
+    def glu():
+        RES = ['GAG', 'Glu']
+    Glu = Button(root, text="Glu", command=glu)
+    Glu.grid(row=0, column=3, sticky=S)
+
+    def ala():
+        RES = ['GCC', 'Ala']
+    Ala = Button(root, text="Ala", command=ala)
+    Ala.grid(row=0, column=4, sticky=S)
+
+    def asn():
+        RES = ['AAU', 'Asn']
+    Asn = Button(root, text="Asn", command=asn)
+    Asn.grid(row=1, column=0, sticky=S)
+
+    def gln():
+        RES = ['CAA', 'Gln']
+    Gln = Button(root, text="Gln", command=gln)
+    Gln.grid(row=1, column=1, sticky=S)
+
+    def ser():
+        RES = ['UCC', 'Ser']
+    Ser = Button(root, text="Ser", command=ser)
+    Ser.grid(row=1, column=2, sticky=S)
+
+    def thr():
+        RES = ['ACA', 'Thr']
+    Thr = Button(root, text="Thr", command=thr)
+    Thr.grid(row=1, column=3, sticky=S)
+
+    def lys():
+        RES = ['AAA', 'Lys']
+    Lys = Button(root, text="Lys", command=lys)
+    Lys.grid(row=1, column=4, sticky=S)
+
+    def arg():
+        RES = ['AGG', 'Arg']
+    Arg = Button(root, text="Arg", command=arg)
+    Arg.grid(row=2, column=0, sticky=S)
+
+    def his():
+        RES = ['CAC', 'His']
+    His = Button(root, text="His", command=his)
+    His.grid(row=2, column=1, sticky=S)
+
+    def val():
+        RES = ['GUC', 'Val']
+    Val = Button(root, text="Val", command=val)
+    Val.grid(row=2, column=2, sticky=S)
+
+    def ile():
+        RES = ['AUU', 'Ile']
+    Ile = Button(root, text="Ile", command=ile)
+    Ile.grid(row=2, column=3, sticky=S)
+
+    def met():
+        RES = ['AUG', 'Met']
+    Met = Button(root, text="Met", command=met)
+    Met.grid(row=2, column=4, sticky=S)
+
+    def cys():
+        RES = ['UGC', 'Cys']
+    Cys = Button(root, text="Cys", command=cys)
+    Cys.grid(row=3, column=0, sticky=S)
+
+    def leu():
+        RES = ['CUU', 'Leu']
+    Leu = Button(root, text="Leu", command=leu)
+    Leu.grid(row=3, column=1, sticky=S)
+
+    def phe():
+        RES = ['UUU', 'Phe']
+    Phe = Button(root, text="Phe", command=phe)
+    Phe.grid(row=3, column=2, sticky=S)
+
+    def tyr():
+        RES = ['UAU', 'Tyr']
+    Tyr = Button(root, text="Tyr", command=tyr)
+    Tyr.grid(row=3, column=3, sticky=S)
+
+    def trp():
+        RES = ['UGG', 'Trp']
+    Trp = Button(root, text="Trp", command=trp)
+    Trp.grid(row=3, column=4, sticky=S)
+
+    # Check sequence
+    if len(RES) > 0:
+        x1 = 350
+        y1 = 100
+        x2 = 410
+        y2 = 120
+        while len(seq) != 0:
+            seq = ''.join(seq.split())
+            triplet = seq[:3]
+            if RES[0] == triplet:
+                Score += 1
+            else:
+                c.create_text(100, 50, anchor=N, font="Purisa",
+                              text="Wrong! Try another one")
+                Score -= 1
+            c.create_rectangle(100, 50, 120, 100, fill="peach puff")
+            c.create_text(100, 50, anchor=N, font="Purisa",
+                              text="Score {}".format(Score))
+            c.create_rectangle(x1, y1, x2, y2,
+                               outline="peach puff", fill=None)
+            c.create_rectangle(x1+30, y1, x2+30, y2,
+                               outline="peach puff", fill=None)
+            x1 += 30
+            x2 += 30
 
 
 
-def check(event):
-    pass
+
+
+
 
 
 
@@ -85,8 +209,8 @@ def main(IN_GAME, Score, c, apple):
 
             Next = Button(c, text="Next", command=next)
             Next.grid(pady=100, padx=100)
-            Next.callback()
-
+            # Next.callback()
+            second_lvl(Score, root)
         if x11 < 0 or y11 < 0 or y12 > HEIGHT:
             IN_GAME = False
             pass
@@ -111,6 +235,7 @@ def main(IN_GAME, Score, c, apple):
             Score += 1
             # context = c.getContext('2d')
             # context.getContext("2d").clearRect(100, 50, 10, 10)
+            c.create_rectangle(125, 50, 150, 100, outline=None, fill="peach puff")
             c.create_text(100, 50, anchor=N, font="Purisa",
                           text="Score {}".format(Score))
         # Self-eating
