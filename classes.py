@@ -12,7 +12,6 @@ SEG_SIZE = 20
 
 class Block:
     def __init__(self, size, c, x = 0, y = 0 ):
-        super().__init__()
         self.x = size * random.randint(1, (WIDTH - size) / size)
         self.y = size * random.randint(1, (HEIGHT - size) / size)
         self.size = size
