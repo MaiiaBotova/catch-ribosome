@@ -313,8 +313,10 @@ class MainFrame(Frame):
     def new_game(self):
         answer = mb.askyesno(title="Question", message="Start new game?")
         if answer == True:
-            self._canvas.delete()
-            self.grid(row=0, column=0, sticky=(N, E, S, W))
+            if self._game.level == 2:
+                self._game._level_two.clean_canvas()
+            self._canvas.destroy()
+            # self.grid(row=0, column=0, sticky=(N, E, S, W))
             # self._add_menu()
             self._add_canvas()
             self.add_game(Game(frame, num_enemies))
@@ -377,13 +379,14 @@ class MainFrame(Frame):
 class Game:
     def __init__(self, frame, num_enemies, level = 1):
         self.frame = frame
-        self.snake = self.create_snake()
+        self.snake = None
         self.enemies = [self.create_enemy() for _ in range(num_enemies)]
         self.num_enemies = num_enemies
         self.score = 0
         self.block = cl.Block(SEG_SIZE, self.frame._canvas)
         self.level = level
         self.create_snake()
+        self._level_two = None
 
 
 
@@ -398,95 +401,103 @@ class Game:
 
 
     def create_snake(self):
-        segments = [cl.Segment(0, 300, self.frame._canvas),
-                         cl.Segment(20, 300, self.frame._canvas),
-                         cl.Segment(40, 300, self.frame._canvas),
-                         cl.Segment(60, 300, self.frame._canvas),
-                         cl.Segment(80, 300, self.frame._canvas)]
+        segments = [cl.Segment(10, 300, self.frame._canvas),
+                         cl.Segment(30, 300, self.frame._canvas),
+                         cl.Segment(50, 300, self.frame._canvas),
+                         cl.Segment(70, 300, self.frame._canvas),
+                         cl.Segment(90, 300, self.frame._canvas)]
         self.snake = cl.Snake(segments, self.frame._canvas)
 
     def start(self):
         # catch keypressing
+        self.frame._canvas.create_text(100, 50, anchor=N, font="Courier",
+                                      text="Score {}".format(self.score))
         self.frame._canvas.focus_set()
         # Reaction on keypress
         self.frame._canvas.bind("<KeyPress>", self.snake.change_direction)
-        self.block.create_block()
         resume = self._is_game_over()
-        if resume == False:
-            if self.level == 1:
+        if not resume :
                 self.main()
-
-            elif self.level == 2:
-                self.second_lvl()
         else:
             self._game_over()
-
-
 
     def main(self):
+        if self.snake.life == 1:
+            return self._game_over()
         self.snake.move()
         for enemy in self.enemies:
-            enemy.move(self.frame._canvas)
-        print('Hello!')
-        snake_head = self.snake.segments[-1]._instance
-        x1, y1, x2, y2 = snake_head
+            enemy.move()
         turner_off = self._is_game_over()
-        if  turner_off == True:
-            self._game_over()
-        # Check for collision with enemy
+        if turner_off == True:
+            return self._game_over()
+        snake_head = self.frame._canvas.coords(self.snake.segments[-1].instance)
+        x1, y1, x2, y2 = snake_head
+        if x1 > WIDTH or x2 > WIDTH:
+            self.level = 2
+            self.frame._canvas.destroy()
+            self.second_lvl()
         else:
-             for enemy in self.enemies:
+        # Check for collision with enemies
+            for enemy in self.enemies:
                 if fu.distance(self.snake, enemy, self.frame._canvas) < SEG_SIZE:
                     self.snake.delete_seg()
                     enemy.add_enemy_segment()
-        # Eating apples
-        if abs(x1 - self.block.x) <= SEG_SIZE and abs(y1 - self.block.y) <= SEG_SIZE:
-            self.snake.add_segment(self.frame._canvas)
-            self.block.delete_block()
-            block = cl.Block(SEG_SIZE, self.frame._canvas)
-            block.create_block()
-            self.score += 1
+            # Eating apples
+            if abs(x1 - self.block.x) <= SEG_SIZE and abs(y1 - self.block.y) <= SEG_SIZE:
+                self.snake.add_segment(self.frame._canvas)
+                self.frame._canvas.delete(self.block.instance)
+                self.block.create_block()
+                self.score += 1
+                self.frame._canvas.create_rectangle(75, 50, 150, 80, outline='peach puff', fill="peach puff")
+                self.frame._canvas.create_text(100, 50, anchor=N, font="Courier",
+                                               text="Score {}".format(self.score))
         self.frame._root.after(100, self.main)
 
     def _is_game_over(self):
-        x1, y1, x2, y2 = self.snake.segments[-1]._instance
+        x1, y1, x2, y2 = self.frame._canvas.coords(self.snake.segments[-1].instance)
         if  x1 < 0 or y1 < 0 or y2 > HEIGHT:
             return True
-        elif x2 > WIDTH:
-            self.level = 2
-            return False
+        # self-eating
+        for index in range(len(self.snake.segments) - 1):
+            head = self.frame._canvas.coords(self.snake.segments[-1].instance)
+            body = self.frame._canvas.coords(self.snake.segments[index].instance)
+            if  head == body:
+                return True
         # Check for collision with enemy
-        elif self.snake.life == 0:
+        if self.snake.life == 0:
             return True
-        # Self-eating
-        else:
-            for index in range(len(self.snake.segments) - 1):
-                if self.snake.segments[0].instance == self.snake.segments[index].instance:
-                    return True
-        return False
 
     def _game_over(self):
         self.frame._canvas.create_text(WIDTH / 2, HEIGHT / 2,
                          text="GAME OVER!\n Your score: {}".format(self.score),
-                         font=("Purisa", 20),
+                         font=("Courier", 20),
                          fill="red")
 
     def second_lvl(self):
-        SecondLevel(self.score, self.frame._root)
+        self._level_two = SecondLevel(self)
 
 
 ########################################################################################
 
-class SecondLevel(Game):
-    def __init__(self):
-        super().__init__()
+class SecondLevel():
+    def __init__(self, game):
+        # super().__init__()
+        self.game = game
         self._root = root
         self._sequence = self._generate_sequence()
         self._canvas = self._draw_canvas()
         self._buttons = self._add_buttons()
 
-        self._rectangle = [230, 100, 280, 120]
+        self._rectangle = [240, 100, 280, 120]
         self._create_triplet_rectangle("#05f")
+
+    def clean_canvas(self):
+        self._canvas.destroy()
+        buttons = self._root.grid_slaves()
+        for button in buttons:
+            button.destroy()
+
+
 
     @staticmethod
     def _generate_sequence():
@@ -497,8 +508,8 @@ class SecondLevel(Game):
 
     def _update_triplet_rectangle(self):
         self._create_triplet_rectangle("peach puff")
-        self._rectangle[0] += 48
-        self._rectangle[2] += 48
+        self._rectangle[0] += 49
+        self._rectangle[2] += 49
         self._create_triplet_rectangle("#05f")
 
     def _create_triplet_rectangle(self, outline):
@@ -508,15 +519,15 @@ class SecondLevel(Game):
     def _draw_canvas(self):
         c = Canvas(self._root, width=WIDTH, height=HEIGHT, bg="peach puff")
         c.grid(row=0, column=5, rowspan=5, columnspan=5, sticky=N + E + S + W)
-        c.create_text(100, 50, anchor=N, font="Purisa",
+        c.create_text(100, 50, anchor=N, font="Courier",
                       text="Score {}".format(Score))
-        x1 = 230
+        x1 = 240
         y1 = 100
         x2 = 280
         y2 = 120
         c.create_rectangle(x1, y1, x2, y2,
                            outline="#05f", fill=None)
-        c.create_text(500, 100, anchor=N, font="Purisa",
+        c.create_text(500, 100, anchor=N, font="Courier",
                       text="{}".format(self._sequence))
         return c
     #
@@ -546,36 +557,35 @@ class SecondLevel(Game):
         return buttons
 
     def _add_amino_acid(self, pair):
-        global Score
         if self._sequence == '':
-            return self._canvas.create_text(500, 250, anchor=N, font=("Purisa", 40),
-                          text="Congratulations! You win!\nYour score is {}".format(Score))
-        if Score == 0:
+            return self._canvas.create_text(500, 250, anchor=N, font=("Courier", 40),
+                          text="Congratulations! You win!\nYour score is {}".format(self.game.score))
+        if self.game.score == 0:
             # gameover = PhotoImage(file="died.gif")
             # self._canvas.create_image(20, 200, image=gameover, anchor=N)
-            self._canvas.create_text(500, 250, anchor=N, font=("Purisa", 40),
+            self._canvas.create_text(500, 250, anchor=N, font=("Courier", 40),
                           text="Game over! Botay bolshe!")
             pass
         else:
             triplet = self._sequence[:3]
             acid, triplet_user_selected = pair
             if triplet_user_selected == triplet:
-                Score += 1
+                self.game.score += 1
                 r = lambda: random.randint(0, 255)
                 color=str('#%02X%02X%02X' % (r(), r(), r()))
                 x1, y1, x2, y2 = self._rectangle
                 self._canvas.create_oval(x1-3, y1 + 30 - 3, x2 + 3, y2 + 30 + 3, fill=color, outline='black')
                 color = str('#%02X%02X%02X' % (r(), r(), r()))
-                self._canvas.create_text((x1 + x2)/2, (y1 + y2)/2 + 30, fill=color, font=("Purisa", 20), text='{}'.format(acid))
+                self._canvas.create_text((x1 + x2)/2, (y1 + y2)/2 + 30, fill=color, font=("Courier", 20), text='{}'.format(acid))
                 self._update_triplet_rectangle()
                 self._sequence = self._sequence[4:]
             else:
-                self._canvas.create_text(300, 50, anchor=N, font="Purisa",
+                self._canvas.create_text(300, 50, anchor=N, font="Courier",
                               text="Wrong! Try another one")
-                Score -= 1
+                self.game.score -= 1
             self._canvas.create_rectangle(25, 50, 150, 100, outline='peach puff',  fill="peach puff")
-            self._canvas.create_text(100, 50, anchor=N, font="Purisa",
-                          text="Score {}".format(Score))
+            self._canvas.create_text(100, 50, anchor=N, font="Courier",
+                          text="Score {}".format(self.game.score))
 
 ########################################################################################
 # How it should be

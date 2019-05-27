@@ -10,7 +10,7 @@ SEG_SIZE = 20
 # Classes
 #####################################################################
 
-class Block(Canvas):
+class Block:
     def __init__(self, size, c, x = 0, y = 0 ):
         super().__init__()
         self.x = size * random.randint(1, (WIDTH - size) / size)
@@ -19,22 +19,20 @@ class Block(Canvas):
         self.canvas = c
         self.life = 1
         self._instance = self.x, self.y, self.x + self.size, self.y + self.size
-
-    # def instance(self):
-    #     self.canvas.create_rectangle(self.x, self.y,
-    #                                        self.x + self.size, self.y + self.size,
-    #                                        fill="red", outline='black')
+        self.instance = self.canvas.create_rectangle(self.x, self.y,
+                                           self.x + self.size, self.y + self.size,
+                                           fill="red", outline='black')
 
     def create_block(self):
         """ Creates an apple to be eaten """
         self.x = self.size * random.randint(1, (WIDTH - self.size - 1) // self.size)
         self.y = self.size * random.randint(1, (HEIGHT - self.size - 1) // self.size)
-        self.canvas.create_rectangle(self.x, self.y,
+        self.instance = self.canvas.create_rectangle(self.x, self.y,
                                      self.x + self.size, self.y + self.size,
                                      fill="red", outline='black')
 
     def delete_block(self):
-        self.canvas.delete(self.instance)
+        self.canvas.delete()
 
 
 
@@ -140,39 +138,43 @@ class Enemy:
         # initial movement direction
         self.vector = self.mapping["Down"]
 
-    def delete(self, c):
-        c.delete(self.segments)
+    def delete(self):
+        self.canvas.delete(self.segments)
+        self.canvas.destroy(self.instance)
         self.segments = None
 
-    def move(self, c):
+    def move(self):
         """ Moves the enemy with a random vector"""
         for index in range(len(self.segments) - 1):
             segment = self.segments[index].instance
-            x1, y1, x2, y2 = self.segments[index + 1]._instance
+            x1, y1, x2, y2 = self.canvas.coords(self.segments[index + 1].instance)
             self.canvas.coords(segment, x1, y1, x2, y2)
-        if x2 > WIDTH:
-            self.vector = self.mapping["Left"]
-        elif x1 < 0 :
-            self.vector = self.mapping["Right"]
-        elif y1 < 0 :
-            self.vector = self.mapping["Down"]
-        elif y2 > HEIGHT:
-            self.vector = self.mapping["Up"]
-        else:
-            l = ["Down", "Right", "Up", "Left"]
-            self.vector = self.mapping[l[random.randint(0, 3)]]
-        x1, y1, x2, y2 = self.segments[-2]._instance
-        self.canvas.coords(self.segments[-1].instance,
-                 x1 + self.vector[0] * SEG_SIZE, y1 + self.vector[1] * SEG_SIZE,
-                 x2 + self.vector[0] * SEG_SIZE, y2 + self.vector[1] * SEG_SIZE)
 
-    def add_enemy_segment(self, c):
+        if x2 >= WIDTH:
+            self.vector = self.mapping["Left"]
+        elif x1 <= 0 :
+            self.vector = self.mapping["Right"]
+        elif y1 <= 0 :
+            self.vector = self.mapping["Down"]
+        elif y2 >= HEIGHT:
+            self.vector = self.mapping["Up"]
+        # else:
+            # l = ["Down", "Right", "Up", "Left"]
+            # self.vector = self.mapping[l[random.randint(0, 3)]]
+
+        x1, y1, x2, y2 = self.canvas.coords(self.segments[-2].instance)
+        self.canvas.coords(self.segments[-1].instance,
+                           x1 + self.vector[0] * SEG_SIZE, y1 + self.vector[1] * SEG_SIZE,
+                           x2 + self.vector[0] * SEG_SIZE, y2 + self.vector[1] * SEG_SIZE)
+
+
+    def add_enemy_segment(self):
         """ Adds segment to the enemy """
-        last_seg = c.coords(self.segments[0]._instance)
+        last_seg = self.canvas.coords(self.segments[0].instance)
         x = last_seg[2] - SEG_SIZE
         y = last_seg[3] - SEG_SIZE
         self.life += 1
-        self.segments.insert(0, Enemy_segment(x, y, c))
+        self.segments.insert(0, Enemy_segment(x, y, self.canvas))
 
     def change_direction(self, event):
         """ Changes direction of enemy"""

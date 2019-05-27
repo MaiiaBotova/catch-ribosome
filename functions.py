@@ -15,9 +15,9 @@ def distance(s, e, c):
     MIN = 2*SEG_SIZE
     for i in range(s.life):
         for j in range(e.life):
-            s_head_coords = s.segments[i]._instance
+            s_head_coords = c.coords(s.segments[i].instance)
             x11, y11, x12, y12 = s_head_coords
-            e_head_coords = e.segments[j]._instance
+            e_head_coords = c.coords(e.segments[j].instance)
             x21, y21, x22, y22 = e_head_coords
             K = min(sqrt((abs(x11 - x21))**2 + (abs(y11 - y21))**2), sqrt((abs(x12 - x22))**2 + (abs(y12 - y22))**2))
             if MIN > K:
