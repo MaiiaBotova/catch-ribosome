@@ -15,9 +15,9 @@ def distance(s, e, c):
     MIN = 2*SEG_SIZE
     for i in range(s.life):
         for j in range(e.life):
-            s_head_coords = c.coords(s.segments[i].instance)
+            s_head_coords = s.segments[i]._instance
             x11, y11, x12, y12 = s_head_coords
-            e_head_coords = c.coords(e.segments[j].instance)
+            e_head_coords = e.segments[j]._instance
             x21, y21, x22, y22 = e_head_coords
             K = min(sqrt((abs(x11 - x21))**2 + (abs(y11 - y21))**2), sqrt((abs(x12 - x22))**2 + (abs(y12 - y22))**2))
             if MIN > K:
@@ -40,37 +40,88 @@ def save(root):
 def score(Score):
     print('Score '.format(Score.points))
 
-def new_game():
-    pass
-
-# def new_game(c, s, e, main, apple):
+# def new_game():
 #     answer = mb.askyesno(title="Question", message="Start new game?")
 #     if answer == True:
-#         c.delete(apple)
-#         c.delete(s.segments)
-#         c.delete(e.segments)
-#         root = Tk()
 #         c = Canvas(root, width=WIDTH, height=HEIGHT, bg="peach puff")
-#         c.grid()
-#
+#         # c.place(relx=-5, rely=-1, anchor=CENTER)
+#         c.grid(row=0, column=0, sticky=(N, E, S, W))
 #         # catch keypressing
 #         c.focus_set()
 #         # creating segments and snake
-#         segments = [cl.Segment(10, 300, c),
-#                     cl.Segment(30, 300, c),
-#                     cl.Segment(50, 300, c),
-#                     cl.Segment(70, 300, c),
-#                     cl.Segment(90, 300, c)]
+#         segments = [cl.Segment(0, 300, c),
+#                     cl.Segment(20, 300, c),
+#                     cl.Segment(40, 300, c),
+#                     cl.Segment(60, 300, c),
+#                     cl.Segment(80, 300, c)]
 #
-#         enemy_segments = [cl.Enemy_segment(700, 400, c),
-#                           cl.Enemy_segment(720, 400, c),
-#                           cl.Enemy_segment(740, 400, c)]
+#         enemy_segments = [cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+#                           cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+#                           cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c)]
 #         s = cl.Snake(segments)
 #         e = cl.Enemy(enemy_segments)
-#
+#         e2 = cl.Enemy([cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+#                        cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+#                        cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c)])
+#         e3 = cl.Enemy([cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+#                        cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c),
+#                        cl.Enemy_segment(random.randint(100, 1000), random.randint(100, 500), c)])
 #         # Reaction on keypress
 #         c.bind("<KeyPress>", s.change_direction)
-#         create_block(c)
+#         # Creating an apple
+#         apple = cl.Block(SEG_SIZE, c)
+#         # apple.instance
 #         IN_GAME = True
-#         main(IN_GAME, 0, c)
+#         c.create_text(100, 50, anchor=N, font="Purisa",
+#                       text="Score {}".format(Score))
+#         main(IN_GAME, True, c, apple)
 #         root.mainloop()
+
+
+
+
+
+
+def _get_save_file_name(self):
+       initialdir = os.path.expanduser(SAVE_DIR)
+       if not os.path.exists(initialdir):
+           os.makedirs(initialdir)
+       save_file_name = filedialog.asksaveasfilename(
+           initialdir=initialdir,
+           title='Save game',
+           filetypes=(("json files", "*.json"), ("all files", "*.*"))
+       )
+       if save_file_name in [(), '']:
+           return None
+       return save_file_name
+
+def save(self):
+   old_lock = self.lock
+   self.lock = True
+   save_file_name = self._get_save_file_name()
+   if save_file_name is not None:
+       saved_game = {
+           "turn": self.turn,
+           "moves": self.moves,
+           "bot_class_name": self.bot.__class__.__name__,
+           "grid": self.grid,
+           "lock": old_lock,
+           "finished": self.finished,
+           "human": self.human,
+           "victory_line": self.victory_line,
+       }
+       with open(save_file_name, 'w') as f:
+           json.dump(saved_game, f)
+   self.lock = old_lock
+
+def _get_load_file_name(self):
+   initialdir = os.path.expanduser(SAVE_DIR)
+   if not os.path.exists(initialdir):
+       initialdir = os.path.expanduser('~')
+   save_file_name = filedialog.askopenfilename(
+       initialdir=initialdir,
+       filetypes=(("json files", "*.json"), ("all files", "*.*"))
+   )
+   if save_file_name in [(), '']:
+       return None
+   return save_file_name

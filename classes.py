@@ -18,14 +18,17 @@ class Block(Canvas):
         self.size = size
         self.canvas = c
         self.life = 1
-        self.instance = self.canvas.create_rectangle(self.x, self.y,
-                                           self.x + self.size, self.y + self.size,
-                                           fill="red", outline='black')
+        self._instance = self.x, self.y, self.x + self.size, self.y + self.size
+
+    # def instance(self):
+    #     self.canvas.create_rectangle(self.x, self.y,
+    #                                        self.x + self.size, self.y + self.size,
+    #                                        fill="red", outline='black')
 
     def create_block(self):
         """ Creates an apple to be eaten """
-        self.x = self.size * random.randint(1, (WIDTH - self.size - 1) / self.size)
-        self.y = self.size * random.randint(1, (HEIGHT - self.size - 1) / self.size)
+        self.x = self.size * random.randint(1, (WIDTH - self.size - 1) // self.size)
+        self.y = self.size * random.randint(1, (HEIGHT - self.size - 1) // self.size)
         self.canvas.create_rectangle(self.x, self.y,
                                      self.x + self.size, self.y + self.size,
                                      fill="red", outline='black')
@@ -40,10 +43,17 @@ class Segment:
     def __init__(self, x, y, c):
         self.x = x
         self.y = y
+        self.c = c
         self.life = 1
-        self.instance = c.create_rectangle(x, y,
-                                           x + SEG_SIZE, y + SEG_SIZE,
-                                           fill="white")
+        self._instance = self.x, self.y, self.x + SEG_SIZE, self.y + SEG_SIZE
+        self.instance = self.c.create_rectangle(self.x, self.y,
+                           self.x + SEG_SIZE, self.y + SEG_SIZE,
+                           fill="white")
+
+    def instance(self):
+        self.c.create_rectangle(self.x, self.y,
+                           self.x + SEG_SIZE, self.y + SEG_SIZE,
+                           fill="white")
 
 
 
@@ -52,17 +62,25 @@ class Enemy_segment:
     def __init__(self, x, y, c):
         self.x = x
         self.y = y
+        self.c = c
         self.life = 1
-        self.instance = c.create_rectangle(x, y,
-                                           x + SEG_SIZE, y + SEG_SIZE,
-                                           fill="dark green")
+        self._instance = self.x, self.y, self.x + SEG_SIZE, self.y + SEG_SIZE
+        self.instance = self.c.create_rectangle(self.x, self.y,
+                                                self.x + SEG_SIZE, self.y + SEG_SIZE,
+                                                fill="green")
+
+    def instance(self):
+        self.c.create_rectangle(self.x, self.y,
+                               self.x + SEG_SIZE, self.y + SEG_SIZE,
+                               fill="dark green")
 
 ###############################################################################
 class Snake:
     """ Simple Snake class """
-    def __init__(self, segments, life = 5):
+    def __init__(self, segments, c, life = 5):
         self.segments = segments
         self.life = life
+        self.canvas = c
         # possible moves
         self.mapping = {"Down": (0, 1), "Right": (1, 0),
                         "Up": (0, -1), "Left": (-1, 0)}
@@ -70,20 +88,20 @@ class Snake:
         self.vector = self.mapping["Right"]
 
     def delete(self):
-        c.delete(self.segments)
+        self.canvas.delete(self.segments)
         self.segments = None
 
-    def move(self, c):
+    def move(self):
         """ Moves the snake with the specified vector"""
-        for index in range(len(self.segments) - 1):
+        for index in range(len(self.segments)-1):
             segment = self.segments[index].instance
-            x1, y1, x2, y2 = c.coords(self.segments[index + 1].instance)
-            c.coords(segment, x1, y1, x2, y2)
+            x1, y1, x2, y2 = self.canvas.coords(self.segments[index+1].instance)
+            self.canvas.coords(segment, x1, y1, x2, y2)
 
-        x1, y1, x2, y2 = c.coords(self.segments[-2].instance)
-        c.coords(self.segments[-1].instance,
-                 x1 + self.vector[0] * SEG_SIZE, y1 + self.vector[1] * SEG_SIZE,
-                 x2 + self.vector[0] * SEG_SIZE, y2 + self.vector[1] * SEG_SIZE)
+        x1, y1, x2, y2 = self.canvas.coords(self.segments[-2].instance)
+        self.canvas.coords(self.segments[-1].instance,
+                 x1+self.vector[0]*SEG_SIZE, y1+self.vector[1]*SEG_SIZE,
+                 x2+self.vector[0]*SEG_SIZE, y2+self.vector[1]*SEG_SIZE)
 
     def add_segment(self, c):
         """ Adds segment to the snake """
@@ -93,14 +111,16 @@ class Snake:
         self.life += 1
         self.segments.insert(0, Segment(x, y, c))
 
-    def delete_seg(self, c):
-        return self._delete(c)
+    def delete_seg(self):
+        return self._delete()
 
-    def _delete(self, c):
-        l = self.segments[1:]
+    def _delete(self):
+        l = self.segments[:-1]
+        seg = self.segments[-1]
         self.segments = l
         self.life -= 1
-        c.delete(self.segments[0])
+        self.canvas.delete(seg)
+        # self.canvas.create_rectangle
 
     def change_direction(self, event):
         """ Changes direction of snake """
@@ -110,9 +130,10 @@ class Snake:
 ######################################################################
 class Enemy:
     """ Random enemy class """
-    def __init__(self, segments, life = 3):
+    def __init__(self, segments, c, life = 3):
         self.segments = segments
         self.life = life
+        self.canvas = c
         # possible moves
         self.mapping = {"Down": (0, 1), "Right": (1, 0),
                         "Up": (0, -1), "Left": (-1, 0)}
@@ -127,8 +148,8 @@ class Enemy:
         """ Moves the enemy with a random vector"""
         for index in range(len(self.segments) - 1):
             segment = self.segments[index].instance
-            x1, y1, x2, y2 = c.coords(self.segments[index + 1].instance)
-            c.coords(segment, x1, y1, x2, y2)
+            x1, y1, x2, y2 = self.segments[index + 1]._instance
+            self.canvas.coords(segment, x1, y1, x2, y2)
         if x2 > WIDTH:
             self.vector = self.mapping["Left"]
         elif x1 < 0 :
@@ -140,16 +161,17 @@ class Enemy:
         else:
             l = ["Down", "Right", "Up", "Left"]
             self.vector = self.mapping[l[random.randint(0, 3)]]
-        x1, y1, x2, y2 = c.coords(self.segments[-2].instance)
-        c.coords(self.segments[-1].instance,
+        x1, y1, x2, y2 = self.segments[-2]._instance
+        self.canvas.coords(self.segments[-1].instance,
                  x1 + self.vector[0] * SEG_SIZE, y1 + self.vector[1] * SEG_SIZE,
                  x2 + self.vector[0] * SEG_SIZE, y2 + self.vector[1] * SEG_SIZE)
 
     def add_enemy_segment(self, c):
         """ Adds segment to the enemy """
-        last_seg = c.coords(self.segments[0].instance)
+        last_seg = c.coords(self.segments[0]._instance)
         x = last_seg[2] - SEG_SIZE
         y = last_seg[3] - SEG_SIZE
+        self.life += 1
         self.segments.insert(0, Enemy_segment(x, y, c))
 
     def change_direction(self, event):
